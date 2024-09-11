@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head.ejs') %>
+</head>
+<body> 
+  <%- include('../partials/nav.ejs') %>
+  
+  <div class="container mt-5">
+    <% if (cartItems !== undefined) { %>
+      <%- include('../partials/cartSections') %>
+
+      <!-- Cart Header -->
+      <div class="header-cart">
+        <h1>Koszyk</h1>
+      </div>
+
+      <!-- Cart Items -->
+      <div class="cart-summary-container">
+        <%- include('../partials/cartItems') %>
+      </div>
+
+      <!-- Total Price Section -->
+      <div class="total-price col-lg-12">
+        <span>Razem:</span>
+        <h1><%- price %> zł</h1>
+      </div>
+
+      <!-- Proceed to Checkout Button -->
+      <div class="proceed-button col-lg-6 m-auto">
+        <a class="btn btn-success btn-lg" href="/cart/purchase">
+          Przejdź dalej
+        </a>
+      </div>
+
+    <% } else { %>
+      <!-- Empty Cart Message -->
+      <div class="empty-cart-message">
+        <span>Brak produktów w koszyku</span>
+      </div>
+    <% } %>
+  </div>
+
+  <script src="js/script.js"></script>
+  <%- include('../partials/bootstrap.ejs') %>
+</body>
+</html>

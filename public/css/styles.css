@@ -1,0 +1,471 @@
+
+html{
+    margin: 30px;
+    font-family: "Roboto", sans-serif;
+    font-weight: 100 !important;
+    font-style: normal;
+ 
+}
+.form-control {
+    margin-bottom: 0px !important;
+    border-radius: 0px !important;
+}
+a{
+    text-decoration: none !important;
+}
+nav{
+    height: 50px;
+}
+.navbar-left-section{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+}
+span, button, h1,h2,input,label, a{
+    font-family: "Roboto", sans-serif !important;
+    font-style: normal;
+}
+span, button, a{
+    font-weight: 100 !important;
+}
+h1{
+    font-weight: 300 !important;
+}
+
+
+.categories{
+    font-weight: 300 !important;
+    margin: 10px;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+.book_card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.book-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-bottom: 1px solid #ddd;
+}
+
+.book-details {
+    padding: 15px;
+}
+
+.book-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+    margin: 0 0 10px;
+}
+
+.book-author {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 15px;
+}
+
+.header-cart{
+    margin: 20px 0px;
+    padding: 20px 10px;
+    border-bottom : 1px solid #888888;;
+ 
+}
+
+.auth-section{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+.auth-section > input {
+    width: 100%;
+}
+.auth-section-create{}
+
+.order-complatition-check{
+    margin: 10px;
+    border-radius: 10px;
+    padding: 20px ;
+}
+.auth-container{
+    margin-top: 5% !important;
+
+}
+.cart-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom : 1px solid #888888;;
+}
+
+.cart-item-section{
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+
+
+}
+
+
+
+#pop_up,#pop_up_error{
+    border: 1px solid white;
+    position: fixed;
+    bottom: 30px;
+    left: 44%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 15px !important;
+    gap: 5px;
+    background-color: green!important;
+    color: white;
+    border-radius: 20px;
+}
+
+#pop_up_error{
+    background-color: red !important;
+}
+
+.slide-in-bottom {
+	    animation: slide-in-bottom 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+.slide-out-bottom {
+    animation: slide-out-bottom 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+
+
+@keyframes slide-in-bottom {
+    0% {
+      -webkit-transform: translateY(1000px);
+              transform: translateY(1000px);
+      opacity: 0;
+    }
+    100% {
+      -webkit-transform: translateY(0);
+              transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-out-bottom{
+    0% {
+      -webkit-transform: translateY(0px);
+              transform: translateY(0px);
+      opacity: 1;
+    }
+    100% {
+      -webkit-transform: translateY(-1000);
+              transform: translateY(-1000);
+      opacity: 0;
+    }
+  }
+  
+  .cart-stages{
+    display: flex;
+    font-size: 20px;
+    margin-top: 30px;
+    gap: 20px;
+  }
+  .cart-stages > div{
+    width: 33%;
+  }
+.stage{
+    height: 10px ;
+    border: 1px solid #888888;
+    border-radius: 10px;
+}
+
+#current_stage{
+    background-color: green !important;
+}
+
+.shipping_option_text{
+    font-size: 20px;
+    border-bottom: 1px solid black;
+    text-align: center;
+    color: black;
+}
+
+.header-text-no-registration{
+    font-size: 32px;
+}
+
+.heading-text{
+    font-size: 32px;
+}
+
+.bordered{
+    border-top: 1px solid #888888;
+    margin: 20px 0px;
+    padding: 20px 5px 0px 5px;
+}
+
+
+.cart-summary {
+    border: 1px solid #dddddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+
+  }
+
+  .cart-summary img {
+    max-width: 100px;
+    margin-right: 20px;
+  }
+
+  .cart-summary .details {
+    flex-grow: 1;
+  }
+
+  .cart-summary .title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .cart-summary .author {
+    font-size: 16px;
+    color: #888888;
+  }
+
+  .summary-section {
+    padding: 0px 20px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+  }
+
+  .summary-section h3 {
+    border-bottom: 1px solid #888888;
+    padding-bottom: 10px;
+    font-weight: 100;
+    margin-bottom: 20px;
+    font-family: "Roboto", sans-serif !important;
+    font-style: normal;
+  }
+
+  .summary-section .form-data {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between
+  }
+
+  .value {
+    color: #666666;
+    font-weight: 300 !important;
+  }
+  .header-cart {
+    text-align: center;
+    margin-bottom: 30px;
+    border:none;
+  }
+  
+  .header-cart h1 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #444;
+    padding-bottom: 10px;
+  }
+
+  .cart-summary-container {
+    margin: 30px 0;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+  }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+  }
+
+  .cart-item img {
+    width: 100px;
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+  }
+
+  .cart-item-details {
+    flex-grow: 1;
+  }
+
+  .cart-item-details h5 {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  .cart-item-details .author {
+    font-size: 14px;
+    color: #888;
+  }
+
+  .cart-price {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .total-price {
+    text-align: right;
+    margin-top: 20px;
+  }
+
+  .total-price h1 {
+    font-size: 28px;
+    color: #444;
+    font-weight: bold;
+  }
+
+  .proceed-button {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  .proceed-button a {
+    display: inline-block;
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+  }
+
+  /* Empty cart message */
+  .empty-cart-message {
+    text-align: center;
+    font-size: 24px;
+    color: #888;
+    margin-top: 50px;
+  }
+  .heading-text {
+    font-size: 22px;
+    color: #333;
+    margin: 20px 0 10px;
+    display: block;
+  }
+
+  .form-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 80%;
+    margin: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-check-label, label {
+    color: #555;
+    font-size: 15px;
+  }
+
+  .form-control {
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+  }
+
+  .form-check-input {
+    margin-right: 10px;
+  }
+
+  .categories {
+    padding: 10px 0;
+    border-top: 1px solid #e0e0e0;
+  }
+  /* From Uiverse.io by LightAndy1 */ 
+.group {
+    display: flex;
+    line-height: 28px;
+    align-items: center;
+    position: relative;
+    max-width: 190px;
+  }
+  
+
+  
+
+  .category-item {
+    font-size: 16px;
+    color: #555;
+    padding: 0 10px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .category-item:hover {
+    color: #007bff;
+  }
+
+  .bordered {
+    padding-bottom: 10px;
+    border-top: none;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+  }
+
+  .btn-danger {
+    background-color: #d9534f;
+    color: white;
+    font-size: 16px;
+    padding: 10px 30px;
+    border-radius: 5px;
+    width: 100%;
+  }
+
+  .btn-danger:hover {
+    background-color: #c9302c;
+  }
+
+  .mt-4 {
+    margin-top: 20px !important;
+  }
+
+  .dropdown_categories{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid  #ccc;
+   padding: 20px 0px 20px 0px;
+    height: 65px;
+
+  }
+
+  .dropdown_categories > p{
+    font-size: 20px;
+    font-family: "Roboto", sans-serif;
+    font-weight: 100 !important;
+    font-style: normal;
+  }
+
+  .dropdown_categories_extra{
+    display: flex;
+    padding-left: 50px
+  }

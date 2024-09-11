@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head.ejs') %>
+  <style>
+   
+  </style>
+</head>
+<body> 
+  <%- include('../partials/nav.ejs') %>
+  <%- include('../partials/cartSections') %>
+
+  <div class="row" style="margin-top: 100px ;">
+    <!-- Cart Items Section -->
+    <div class="col-lg-8 px-3">
+        <% cartItems.forEach(function(book) { %>
+          <div class="cart-summary d-flex align-items-center mb-3">
+            <img src="/book.jpg" alt="<%= book.Tytuł %>"/>
+            <div class="details">
+              <span class="title"><%= book.Tytuł %></span>
+              <div class="author">Autor: <%= book.Autor %></div>
+            </div>
+          </div>
+        <% }) %>
+
+    </div>
+
+    <!-- Summary Section (Form Data) -->
+    <div class="col-lg-4 px-3">
+      <div class="summary-section">
+        <h3>Podsumowanie zamówienia</h3>
+        <% Object.keys(form_data).forEach(function(key) { %>
+          <div class="form-data">
+            <span class="key"><%= key %>: </span>
+            <span class="value"><%= form_data[key] %></span>
+          </div>
+        <% }) %>
+        <button class="btn btn-success text-center">Zamów</button>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/bootstrap.ejs') %>
+</body>
+</html>

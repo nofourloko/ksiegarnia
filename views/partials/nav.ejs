@@ -1,0 +1,77 @@
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    
+    <!-- Logo Section -->
+    <div class="page_icon d-flex align-items-center">
+      <a href="http://localhost:5000/">
+        <img src="book.png" alt="Logo" style="height: 50px;">
+      </a>
+    </div>
+    <div class="navbar-left-section" >
+      <div class="input-group-prepend">
+        <span class="input-group-text" style="border-radius: 0; background-color: transparent" id="basic-addon1">
+          <i class="bi bi-search"></i>
+        </span>
+      </div>
+      <input type="text" class="form-control" placeholder="" aria-label=" aria-describedby="basic-addon1">
+      <a class="btn btn-outline-dark m-1" href="http://localhost:5000/auth" style="border-radius: 0;">
+        Logowanie
+      </a>
+
+      <a class="btn btn-success position-relative " href="http://localhost:5000/cart" style="border-radius: 0;">
+        <i class="bi bi-bag-check-fill"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span> <!-- Cart badge -->
+      </a>
+    </div>
+
+  </div>
+</nav>
+  <% if (categories !== null) { %>
+    <div class="categories d-flex justify-content-center py-3 bg-light">
+      <% categories.forEach((categorie) => { %>
+        <span class="mx-3 category-item text-muted"><%= categorie.Tytuł %></span>
+      <% }) %>
+        <button class="btn btn-outline-dark ms-4 dropdown-toggle" style="border-radius: 0; padding: 8px 20px;" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+        Wszystkie kategorie
+      </button>  
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasExampleLabel">Wszystkie kategorie</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="dropdown d-flex flex-column">
+            <% categories.forEach((categorie) => { %>
+              <div class="dropdown_categories">
+                <p class="mx-3 category-item text-muted">
+                  <i class="bi bi-book" ></i>
+                  <%= categorie.Tytuł %>
+                </p>
+                <p type="button" onclick="dropdown_subcategory('<%= categorie.Tytuł %>')"><i class="bi bi-arrow-down-short"></i></p>
+                
+              </div>
+              <div class="dropdown_categories_extra" style="display: none;" id='sub_category_<%= categorie.Tytuł %>'>
+                <span class="mt-3 category-item text-muted">
+                  <i class="bi bi-book" ></i>
+                  <%= categorie.Tytuł %>
+                </span>
+                
+              </div>
+            
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    
+    </div>
+  <% } %>
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+
+
+<style>
+  .offcanvas-backdrop.show{
+    opacity: .3 !important;
+  }
+</style>
