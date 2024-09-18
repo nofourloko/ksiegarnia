@@ -5,33 +5,37 @@
 </head>
 <body> 
       <%- include('../partials/nav.ejs') %>
-      <div class="row mt-3">
-        <% books.forEach(function(book) { %>
-            <div class="col-lg-3 mb-4">
-                <div class="book_card">
-                    <img src="/book.jpg" alt="<%= book.Tytuł %>" class="book-image"/>
-                    <div class="book-details text-center">
-                        <h2 class="book-title"><%= book.Tytuł %></h2>
-                        <p class="book-author"><%= book.Autor %></p>
-                        <p><%= book.Cena %> zł</p>
-                        <button 
-                          class="btn btn-outline-success" 
-                          onclick="addItemToCard('<%= book.id %>')">
-                            Dodaj do koszyka
-                        </button>
-                    </div>
-                </div>
-            </div>
-        <% }); %>
-    </div>
-    
-      <div id="pop_up" style="opacity: 0;">
-        <span>Produkt dodany <i class="bi bi-bag-check-fill"></i></span>
+      <div class="container">
+        <div class="row mt-3">
+          <div class="col-lg-12 mb-5">
+            <img src="/image_main.jpg"/>
+          </div>
+          <div class="col-lg-12">
+            <h1 class=" m-5">Wszystkie książki</h1>
+          </div>
+          <% books.forEach(function(book) { %>
+              <div class="col-lg-3 mb-4">
+                  <div class="book_card" >
+                      <img src="/book.jpg" alt="<%= book.Tytuł %>" class="book-image" onclick="selectedBook('<%= book.id %>')"/>
+                      <div class="book-details text-center">
+                          <h2 class="book-title"><%= book.Tytuł %></h2>
+                          <p class="book-author-main"><%= book.Autor %></p>
+                          <p><%= book.Cena %> zł</p>
+                          <button 
+                            class="btn btn-outline-success" 
+                            onclick="addItemToCard('<%= book.id %>')">
+                              Dodaj do koszyka
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          <% }); %>
       </div>
-      <div id="pop_up_error" style="opacity: 0;">
-        <span>Wystąpił błąd <i class="bi bi-bag-x"></i></span>
       </div>
-      <script src="js/script.js"></script>
+
+      <%- include('../partials/footer.ejs') %>
+      <%- include('../partials/pop_up_book.ejs') %>
       <%- include('../partials/bootstrap.ejs') %>
+
 </body>
 </html>

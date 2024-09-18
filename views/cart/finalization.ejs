@@ -2,9 +2,6 @@
 <html lang="en">
 <head>
   <%- include('../partials/head.ejs') %>
-  <style>
-   
-  </style>
 </head>
 <body> 
   <%- include('../partials/nav.ejs') %>
@@ -35,7 +32,10 @@
             <span class="value"><%= form_data[key] %></span>
           </div>
         <% }) %>
-        <button class="btn btn-success text-center">Zamów</button>
+        <div class="form-data text-end bordered ">
+          <span class="heading-text">Kwota do zapłaty: 30zł</span>
+        </div>
+        <button class="btn btn-success text-center" onclick="orderCompletion('<%= JSON.stringify(form_data) %>', '<%= JSON.stringify(cartItems) %>')">Zamów</button>
       </div>
     </div>
   </div>

@@ -8,14 +8,6 @@
           <span><%= book.Tytuł %></span>
         </div>
         <div class="cart-item-section">
-          <h6>Cena detaliczna</h6>
-          <span><%= book.Cena %> zł</span>
-        </div>
-        <div class="cart-item-section">
-          <h6>Rabat</h6>
-          <span>10%</span>
-        </div>
-        <div class="cart-item-section">
           <h6>Cena sprzedazy</h6>
           <span><%= parseInt(book.Cena * 0.9 )%> zł</span>
         </div>
@@ -23,7 +15,7 @@
           <input type="number" class="form-control" id="floatingInput" placeholder="name@example.com" value="1">
           <label for="floatingInput">Ilość:</label>
         </div>
-        <i class="bi bi-x-circle-fill" style="color: red;" onclick="removeFromCart('<%= book %>')"></i>
+        <i class="bi bi-x-circle-fill" style="color: red;" onclick="removeFromCart('<%= book.id %>')"></i>
       </div>
     </div>
   <% }) %>

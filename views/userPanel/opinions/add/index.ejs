@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../../../partials/nav.ejs') %>
+      <div class="container">
+        <% orders_to_review.forEach(item => { %>
+          <div class="row mt-5">
+            <div class="col-lg-2" style="margin-right: 50px;">
+              <img src="/book.jpg" class="book-image"/>
+            </div>
+            <div class="col-lg-9  ml-5">
+              <h1 class="book-title"><%= item.Tytuł %></h1>
+              <div class="book-meta mb-3">
+                <span class="book-autor">Autor: <%= item.Autor %> </span>
+              </div>
+              <span>Oceń:</span>
+              <i class="bi bi-star"></i>
+              <i class="bi bi-star"></i>
+              <i class="bi bi-star"></i>
+              <i class="bi bi-star"></i>
+              <i class="bi bi-star"></i>
+              <form action="/user/review/add" method="post">
+                <div class="form-group mt-3">
+                  <textarea class="form-control" id="exampleFormControlTextarea1" name="review_text" rows="4" placeholder="Wpisz tekst recenzji" required></textarea>
+                </div>
+                <div class="form-check mt-2">
+                  <input type="checkbox" class="form-check-input" id="exampleCheck1" name="rules_aceptation" required>
+                  <label class="form-check-label" for="exampleCheck1" >Akceptuje regulamin opinii i recenzji</label>
+                </div>
+                <div class="text-end"> 
+                  <button class="btn btn-outline-success mt-2 text-end">Publikuj</button>
+                </div>
+              </form>
+              
+            </div>
+          </div>
+        <% }) %>
+       
+      </div>
+      <%- include('../../../partials/bootstrap.ejs') %>
+</body>
+</html>

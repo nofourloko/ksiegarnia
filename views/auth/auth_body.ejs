@@ -1,18 +1,32 @@
-<div class="row auth-container">
-    <form class="col-lg-6 col-sm-12 m-auto text-start" onsubmit="return isEmailValid(event)" method="post">
+<div class="container">
+ <div class="row">
+    <div class="col-lg-6 col-sm-12 m-auto" style="display: none;" id="success_div">
+        <div class="auth_section_success">
+            <span>Logowanie udane</span>
+            <i class="bi bi-check-circle-fill success_auth"></i>
+        </div>
+    </div>
+    <form class="col-lg-6 col-sm-12 m-auto" onsubmit="return isEmailValid(event)" method="post" id="form_email">
         <div class="auth-section">
-            <span class="pb-3 mb-3 heading-text" style="color: #888888; border-bottom: 1px solid #888888;">
-                Zaloguj się lub zarejestruj
-            </span>
-            <div class="form-floating mb-3" id="email_field">
+            <div class="d-flex">
+                <a class="mb-3 pb-3 heading-text_login" href="/auth" id="current_auth">
+                    Logowanie
+                </a>
+                <a class="mb-3 pb-3 heading-text_login" href="/register">
+                    Rejestracja
+                </a>
+            </div>
+            <div class="form-floating mb-3">
                 <input type="email" class="form-control" id="emailInput" name="email" placeholder="name@example.com" required>
                 <label for="emailInput">E-mail</label>
             </div>
-            <div class="form-floating mb-3" id="password_field" style="display:none;">
+            <div class="form-floating mb-3">
                 <input type="password" class="form-control" id="passwordInput" name="password" placeholder="password" required>
                 <label for="passwordInput">Hasło</label>
             </div>
-            <button class="btn btn-lg btn-outline-success mt-3" type="submit">Dalej</button>
+            <button class="btn btn-success m-auto" type="submit">Dalej</button>
         </div>
     </form>
+</div>   
 </div>
+

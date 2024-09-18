@@ -1,58 +1,76 @@
 const express = require('express')
 const router = express.Router()
-const {books, categories} = require("../examples")
 const { con }  = require('../Controller/db_connection')
-const session = require('express-session')
-const sql = `SELECT * FROM Kategorie`;
-const sql2 = `SELECT * FROM Książki`;
+const { getCartItems } = require('../Controller/cookiesHelper')
 
-const purchase_stages = [
-    {
-        title : 'Koszyk'
-    },
-    {
-        title : 'Dostawa i płatność'
-    },
-    {
-        title : 'Finalizacja'
-    }
-]
+const date_settings = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  };
 
-router.use(session({
-  secret: 'secret_key',
-  resave: false,
-  saveUninitialized: true
-}));
 
-router.use("/", async (req, res, next) => {
-    con.query(sql)
-        .then( categories => {
-            req.categories = categories
-            return con.query(sql2)      
+
+router.get('/ksiazka/:id', (req, res) => {
+    const { id } = req.params
+
+    con.select('Książki', `id = ${id}`)
+        .then( selectedBook => {
+            con.select('Opinie', `id_książki = ${id}`)
+                .then( opinions => {
+                    const changed_date_opinions = opinions.map(item => {
+                        const date = new Date(item.data_dodania)
+                        item.data_dodania = date.toLocaleDateString('pl-PL', date_settings)
+                        return item
+                    })
+
+                    res.render(
+                        './bookPage/index.ejs', 
+                        {
+                            books : req.books || [], 
+                            categories: req.categories || [], 
+                            numberOfItemsInCart: getCartItems(req).length,
+                            selectedBook : selectedBook[0],
+                            opinions : changed_date_opinions
+                        }
+                    )
+                })
+                .catch(err => console.log(`Database error:${err}`))
         })
-        .then(books => {
-            console.log(books)
-            req.books = books
-            next()
-        })
-        .catch((err) => {
-            console.log(err)
-            next()
-        })
-});
+        .catch(err => console.log(`Database error:${err}`))
+})
 
 router.get('/', (req, res) => {
-    res.render('./main/index.ejs', {books : req.books || [], categories: req.categories || []})
+    res.render(
+        './main/index.ejs', 
+        {
+            books : req.books || [], 
+            categories: req.categories || [],
+            numberOfItemsInCart: getCartItems(req).length
+        }
+    )
+})
+
+router.get('/:id/:category_title', (req, res) => {
+    const { id} = req.params
+    const filtred_books = req.books.filter(item => item.Id_kategorii === parseInt(id))
+    res.render(
+        './main/index.ejs', 
+        {   
+            books : filtred_books || [], 
+            categories: req.categories || [],
+            numberOfItemsInCart: getCartItems(req).length
+        }
+    )
 })
 
 router.post('/newItem', (req, res) => {
-    const {bookAuthor} = req.body
-    const upadtedItems = [bookAuthor]
-    const previousItems = req.cookies['CartProducts']
+    const { book } = req.body
+    const upadtedItems = [book]
+    const previousItems = getCartItems(req)
 
     if (previousItems) {
-        const parsedItems = JSON.parse(previousItems);
-        upadtedItems.push(...parsedItems);
+        upadtedItems.push(...previousItems);
     }
 
     res.cookie('CartProducts', JSON.stringify(upadtedItems), { maxAge: 3600 * 1000 });
@@ -61,50 +79,24 @@ router.post('/newItem', (req, res) => {
 
 
 router.post('/removeItem', (req, res) => {
-    const {bookAuthor} = req.body
-    const upadtedItems = JSON.parse(req.cookies['CartProducts']).filter(item => item !== bookAuthor)
-
-    
+    const { id } = req.body
+    const upadtedItems = getCartItems(req).filter(item => item !== id)  
     res.cookie('CartProducts', JSON.stringify(upadtedItems), { maxAge: 3600 * 1000 });
     res.json({ success : true});
 })
 
-router.get('/cart', (req, res) => {
-    const cartItems =  JSON.parse(req.cookies['CartProducts']) || []
-    let price = 0
-    cartItems.forEach((element, idx )=> {
-        const found_item = req.books.find(item => item.id === parseInt(element))
-        cartItems[idx] = found_item
-        price += found_item.Cena
-    });
-
-    console.log(cartItems)
-
-    res.render('./cart/index.ejs', { cartItems : cartItems, categories: null, purchase_stages, current : [ 'Koszyk' ], price})
+router.post('/search', (req, res) => {
+    const { searched_title } = req.body
+    const filtred_books = req.books.filter(item => item.Tytuł.toLocaleLowerCase().includes(searched_title.toLocaleLowerCase()))
+    res.render(
+        './main/index.ejs', 
+        {   
+            books : filtred_books || [], 
+            categories: req.categories || [],
+            numberOfItemsInCart: getCartItems(req).length
+        }
+    )
+ 
 })
 
-router.get('/cart/purchase', (req, res) => {
-    res.render('./cart/shipping.ejs', { categories: null, purchase_stages, current : [ 'Koszyk' ,'Dostawa i płatność' ] })
-})
-
-router.get('/cart/purchase/no-regestration', (req, res) => {
-    res.render('./cart/shipping-no-registration.ejs', { categories: null, purchase_stages, current : [ 'Koszyk' ,'Dostawa i płatność' ] })
-})
-
-router.get('/cart/purchase/finaliztion', (req, res) => {
-    const cartItems =  JSON.parse(req.cookies['CartProducts']) || []
-    const form_data = req.session.form_data || {};
-
-    cartItems.forEach((element, idx )=> {
-        const found_item = req.books.find(item => item.id === parseInt(element))
-        cartItems[idx] = found_item
-    });
-    res.render('./cart/finalization.ejs', { categories: null, cartItems, purchase_stages, current : [ 'Koszyk' ,'Dostawa i płatność', "Finalizacja" ] , form_data})
-})
-
-router.post('/cart/finalization', (req, res) => {
-    const form_data = req.body
-    req.session.form_data = form_data;
-    res.redirect('/cart/purchase/finaliztion')
-})
 module.exports = router

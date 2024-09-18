@@ -1,26 +1,33 @@
 <nav class="navbar navbar-expand-lg">
   <div class="container-fluid d-flex justify-content-between align-items-center">
-    
-    <!-- Logo Section -->
-    <div class="page_icon d-flex align-items-center">
+  
+    <div class="d-flex align-items-center">
       <a href="http://localhost:5000/">
-        <img src="book.png" alt="Logo" style="height: 50px;">
+        <img src="/book.png" alt="Logo" class="page_icon">
       </a>
+      <span class="navbar-title">Książkowe Zakątki</span>
     </div>
+    
     <div class="navbar-left-section" >
-      <div class="input-group-prepend">
-        <span class="input-group-text" style="border-radius: 0; background-color: transparent" id="basic-addon1">
-          <i class="bi bi-search"></i>
-        </span>
+
+      <form class="d-flex" action="/search" method="post">
+        <input type="text"class='form-control' placeholder="Znajdz coś dla siebie" style="border: 1px solid black;border-right:none;" id="searched_title" name="searched_title">
+        <button class="btn btn-outline-dark" style="border-radius: 0;"><i class="bi bi-search"></i></button>
+      </form>
+      <div>
+        <a class="btn btn-outline-dark m-1" href="/auth" style="border-radius: 0;">
+         <i class="bi bi-person"></i> Twoje konto
+        </a>
       </div>
-      <input type="text" class="form-control" placeholder="" aria-label=" aria-describedby="basic-addon1">
-      <a class="btn btn-outline-dark m-1" href="http://localhost:5000/auth" style="border-radius: 0;">
-        Logowanie
-      </a>
+      <div>
+        <a class="btn btn-outline-danger m-1" href="http://localhost:5000/auth" style="border-radius: 0;">
+          <i class="bi bi-bookmark-heart"></i>
+        </a>
+      </div>
 
       <a class="btn btn-success position-relative " href="http://localhost:5000/cart" style="border-radius: 0;">
         <i class="bi bi-bag-check-fill"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span> <!-- Cart badge -->
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartBadge"><%= numberOfItemsInCart %></span> <!-- Cart badge -->
       </a>
     </div>
 
@@ -29,7 +36,8 @@
   <% if (categories !== null) { %>
     <div class="categories d-flex justify-content-center py-3 bg-light">
       <% categories.forEach((categorie) => { %>
-        <span class="mx-3 category-item text-muted"><%= categorie.Tytuł %></span>
+          <a class="mx-3 category-item text-muted" href="/<%= categorie.id %>/<%= categorie.category %>/" ><%= categorie.category %></a>
+        
       <% }) %>
         <button class="btn btn-outline-dark ms-4 dropdown-toggle" style="border-radius: 0; padding: 8px 20px;" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
         Wszystkie kategorie
@@ -44,19 +52,23 @@
             <% categories.forEach((categorie) => { %>
               <div class="dropdown_categories">
                 <p class="mx-3 category-item text-muted">
-                  <i class="bi bi-book" ></i>
-                  <%= categorie.Tytuł %>
+                  <%= categorie.category %>
                 </p>
-                <p type="button" onclick="dropdown_subcategory('<%= categorie.Tytuł %>')"><i class="bi bi-arrow-down-short"></i></p>
+                <p type="button" onclick="dropdown_subcategory('<%= categorie.id %>')"><i class="bi bi-journal-arrow-down"></i></p>
                 
               </div>
-              <div class="dropdown_categories_extra" style="display: none;" id='sub_category_<%= categorie.Tytuł %>'>
-                <span class="mt-3 category-item text-muted">
-                  <i class="bi bi-book" ></i>
-                  <%= categorie.Tytuł %>
-                </span>
-                
+              <div class="dropdown_categories_extra" style="display: none;" id='sub_category_<%= categorie.id %>' >
+                <% categorie.subcategory.forEach((sub) => { %>
+     
+                    <span class="sub-title">
+                      <i class="bi bi-book" ></i>
+                      <%= sub %>
+                    </span>
+          
+                  
+                <% }) %>
               </div>
+            
             
             <% }) %>
           </div>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../partials/nav.ejs') %>
+      <%- include('../partials/bootstrap.ejs') %>
+      <div class="container mt-5">
+        <div class="row product-page">
+          
+          <!-- Book Image -->
+          <div class="col-lg-4 col-md-6 col-sm-12 ">
+            <img src="/book.jpg" alt="Okładka książki" class="img-fluid book-image">
+          </div>
+          
+          <!-- Book Details -->
+          <div class="col-lg-8 col-md-6 col-sm-12 book-details">
+           
+            <h1 class="book-title-selected"><%= selectedBook.Tytuł %></h1>    
+            <div class="book-meta">
+                <span>Autor: <strong> <%= selectedBook.Autor %></strong></span>   
+                <span>Wydawnictwo: <strong> <%= selectedBook.Id_wydawnictwa %></strong></span> 
+                <span>Oprawa: <strong> <%= selectedBook.Oprawa %></strong></span> 
+                <span>Rok wydania: <strong> <%= selectedBook.Rok_wydania %></strong></span> 
+                <span>Liczba stron: <strong> <%= selectedBook.Liczba_stron %></strong></span> 
+                <span>Kategoria: <strong> Literatura</strong></span> 
+                <!-- <% Object.keys(selectedBook).forEach(el => { %>
+                    <span><%= el %>: <strong> <%= selectedBook[el] %></strong></span>       
+                <%})%> -->
+            </div>
+            <div class="book_selected_add">
+                <span class="price"><%= selectedBook.Cena %> zł</span>
+                <div class="book_selected_add_buttons">
+                    <button 
+                    class="btn btn-danger" 
+                    style="width: 50px"
+                    onclick="addToBookmarks('<%= selectedBook.id %>')"
+                    >
+                    <i class="bi bi-bookmark-heart"></i>
+                    <button class="btn btn-success" onclick="addItemToCard('<%= JSON.stringify(selectedBook) %>')">Dodaj do koszyka <i class="bi bi-bag-check-fill"></i></button>
+                </button>
+                </div>
+             
+            </div>
+          </div>
+          
+        </div>
+        <div class="row mt-5">
+            <!-- Bookmark Sections -->
+            <div class="col-lg-3 px-1 d-flex">
+                <span class="bookmarks_selected_book" id="bookmark_opis">Opis</span>
+            </div>
+            <div class="col-lg-3 px-1 d-flex">
+                <span class="bookmarks_selected_book" id="bookmark_opinie">Opinie</span>
+            </div>
+            <div class="col-lg-3 px-1 d-flex">
+                <span class="bookmarks_selected_book" id="bookmark_dostepnosc">Dostępność</span>
+            </div>
+            <div class="col-lg-3 px-1 d-flex">
+                <span class="bookmarks_selected_book" id="bookmark_szczegoly">Szczegóły</span>
+            </div>
+        
+            <!-- Content Sections -->
+            <div id="content_opis" class="col-lg-12 mt-5 book-meta container">
+                <h1 class="book-title">Opis od wydawcy</h1>
+                <span style="text-indent: 2em;"><%= selectedBook.Opis %> </span>
+            </div>
+        
+            <div id="content_opinie" class="col-lg-12 mt-5 book-meta bordered pb-3 container" style="display: none;">
+                <h1 class="book-title mb-4">Opinie</h1>
+                <% opinions.forEach(item => { %>
+                    <span><i class="bi bi-person"></i> Aleksandra</span>
+                    <div style="font-size: 16px;" class="mb-3">
+                        <% [1,2,3,4,5].forEach(el => { %>
+                            <% if(el <= item.ocena){ %>
+                                <i class="bi bi-star-fill" style="color: yellow;"></i>
+                            <%}else{ %>
+                        <i class="bi bi-star"></i>
+                        <% } %>
+                        <% }) %>
+                    </div>
+                    <span class="book-author"><%= item.data_dodania %></span>
+                    <p><span><%= item.treść%></span></p>
+                <%})%>
+            </div>
+        
+            <div id="content_dostepnosc" class="col-lg-12 mt-5 container" style="display: none;">
+                <h1 class="book-title">Dostępność</h1>
+                <span class="bordered quantity-book">Dostępność całkowita: <strong><%= selectedBook.Stan %></strong></span>
+            </div>
+        
+            <div id="content_szczegoly" class="col-lg-12 mt-5 all-details-selected-book container" style="display: none;">
+                <h1 class="book-title">Szczegóły</h1>
+                <% Object.keys(selectedBook).forEach(el => { %>
+                    <span><%= el %>: <strong> <%= selectedBook[el] %></strong></span>
+                <% }) %>
+            </div>
+        </div>
+        
+      <%- include('../partials/pop_up_book.ejs') %>
+</body>
+<style>
+    .product-page {
+        background-color: white;
+        padding: 20px 10px;
+      }
+      
+      .book-image {
+        height: 100%; 
+        max-height: 500px; /* Restrict maximum height */
+        width: auto;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        object-fit: cover;
+      }
+      
+   
+      .all-details-selected-book span{
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #ddd;
+        padding: 20px;
+        margin:10px;
+      }
+      strong{
+        margin-left: 5px;
+      }
+      .price {
+        font-size: 2rem;
+      }
+      
+      .book-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin: 30px 10px;
+      }
+      .quantity-book{
+        display: flex;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+        gap: 140px;
+      }
+</style>

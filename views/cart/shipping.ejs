@@ -6,11 +6,14 @@
  </head>
  <body> 
     <%- include('../partials/nav.ejs') %>
-    <%- include('../partials/cartSections') %>
-    <%- include('../auth/auth_body.ejs')%>
-    <div class="col-lg-12 text-center mt-3">
-        <a class="shipping_option_text" href="/cart/purchase/no-regestration">Zakup bez rejestracji</a>
+    <div class="container">
+      <%- include('../partials/cartSections') %>
+      <%- include('../auth/auth_body.ejs')%>
+      <div class="col-lg-12 text-center mt-3">
+          <a class="shipping_option_text" href="/cart/purchase/no-regestration">Zakup bez rejestracji</a>
+      </div>
     </div>
+   
    
         <%- include('../partials/bootstrap.ejs') %>
 </body>

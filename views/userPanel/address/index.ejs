@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../../partials/nav.ejs') %>
+      <%- include('../../partials/bootstrap.ejs') %>
+      <div class="container">
+            <form class="row mt-5" method="post" action="/user/account/adress/add">
+                <%- include('../../partials/addressForm.ejs') %>
+            </form>
+      </div>
+      <%- include('../../partials/bootstrap.ejs') %>
+</body>
+</html>

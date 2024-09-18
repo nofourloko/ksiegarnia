@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../partials/nav.ejs') %>
+      <%- include('../partials/bootstrap.ejs') %>
+      <div class="container">
+        <div class="row mt-5">
+            <div class="col-lg-5 m-5 d-flex justify-content-end">
+                <div class="acc_infos">
+                    <h1>0</h1>
+                    <span>Zrealizowanych zamówień</span>
+                </div>
+                
+            </div>
+            <div class="col-lg-5 m-5 d-flex justify-content-start">
+                <div class="acc_infos">
+                    <h1>0</h1>
+                    <span>Napisanych opinii</span>
+                </div>
+                
+            </div>
+            <div class="col-lg-4 mt-3">
+                <div class="account-sections">
+                    <i class="bi bi-lock" id="icon_account"></i>
+                    <div>
+                        <h1 class="account-section-title">Konto i bezpieczeństwo</h1>
+                        <span>Twoje dane</span>
+                        <a href="/user/account/adress"><span>Adresy do wysyłki i faktury</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mt-3">
+                <div class="account-sections">
+                    <i class="bi bi-arrow-counterclockwise"  id="icon_account"></i>
+                    <div>
+                        <h1 class="book-title">Historia transakcji</h1>
+                        <span>Zamówienia</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mt-3">
+                <div class="account-sections">
+                    <i class="bi bi-pencil-square"  id="icon_account"></i>
+                    <div>
+                        <h1 class="book-title">Recenzje</h1>
+                        <span>Twoje recenzje</span>
+                        <a href="/user/account/add_opinions"><span>Dodaj recenzje</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <a class="btn btn-danger log-out" href="/user/logout/clear">Wyloguj się</a>
+      <%- include('../partials/bootstrap.ejs') %>
+</body>
+</html>
