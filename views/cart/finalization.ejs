@@ -17,6 +17,14 @@
               <span class="title"><%= book.Tytuł %></span>
               <div class="author">Autor: <%= book.Autor %></div>
             </div>
+            <div class="d-flex flex-column text-center" style="margin-right: 100px;">
+              <span class="author">Ilość:</span>
+                <span><%= book.quantity %></span>
+            </div>
+            <div class="d-flex flex-column text-center">
+              <span class="author">Cena:</span>
+              <span><%= book.Cena %></span>
+            </div>
           </div>
         <% }) %>
 
@@ -33,9 +41,9 @@
           </div>
         <% }) %>
         <div class="form-data text-end bordered ">
-          <span class="heading-text">Kwota do zapłaty: 30zł</span>
+          <span class="heading-text">Kwota do zapłaty: <%= price %>zł</span>
         </div>
-        <button class="btn btn-success text-center" onclick="orderCompletion('<%= JSON.stringify(form_data) %>', '<%= JSON.stringify(cartItems) %>')">Zamów</button>
+        <button class="btn btn-success text-center mb-3" onclick="orderCompletion('<%= JSON.stringify(form_data) %>', '<%= JSON.stringify(cartItems) %>','<%= price %>')">Zamów</button>
       </div>
     </div>
   </div>

@@ -23,7 +23,7 @@ con.connection.connect((err) => {
 
 app.use(session({
     secret: 'secret_key',
-    resave: false,
+    resave: true,
     saveUninitialized: true
   }));
 
@@ -62,7 +62,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json())
 app.set('views', path.join(__dirname,  'views'));
 app.use('/', products)
-app.use('/', auth)
+app.use('/auth', auth)
 app.use('/user', user)
 app.use('/cart', cart)
 app.get('/', (req, res) => {})

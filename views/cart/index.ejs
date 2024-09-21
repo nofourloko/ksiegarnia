@@ -7,7 +7,7 @@
   <%- include('../partials/nav.ejs') %>
   
   <div class="container mt-5">
-    <% if (cartItems !== undefined) { %>
+    <% if (cartItems.length > 0 ) { %>
       <%- include('../partials/cartSections') %>
 
       <!-- Cart Header -->
@@ -16,7 +16,7 @@
       </div>
 
       <!-- Cart Items -->
-      <div class="cart-summary-container">
+      <div class="cart-summary-container" style="border: none;">
         <%- include('../partials/cartItems') %>
       </div>
 
@@ -28,16 +28,32 @@
 
       <!-- Proceed to Checkout Button -->
       <div class="proceed-button col-lg-6 m-auto">
-        <a class="btn btn-success btn-lg" href="/cart/purchase/delivery">
+        <a class="btn btn-success btn-lg mb-5" href="/cart/purchase/delivery">
           Przejdź dalej
         </a>
       </div>
 
     <% } else { %>
       <!-- Empty Cart Message -->
-      <div class="empty-cart-message">
-        <span>Brak produktów w koszyku</span>
+       <div class="row mt-5 p-5">
+        <div class="col-lg-6">
+          <div class="empty-cart-message">
+            <h1>Brak produktów w koszyku</h1>
+            <a href="/"><span>Przejdź do strony głównej</span></a>
+          </div>
+        </div>
+        <div class="col-lg-6" style="height: 200px;">
+          <img src="/bag.png" style="height: 100%;" />
+        </div>
+       </div>
+       <% if(suggested.length > 0){ %>
+       <div class="row mt-5 pt-5" style="border-top: 1px solid #ddd;">
+        <h1 class="book-title mb-5"> Zapisane na pózniej </h1>
+        <% suggested.forEach(function(book) { %>
+          <%- include('../partials/book.ejs' , {book}) %>
+      <% }); %>
       </div>
+      <%}%>
     <% } %>
   </div>
 

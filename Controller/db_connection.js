@@ -11,9 +11,9 @@ class DBhandler {
           });
     }
 
-    query(sql_query){
+    query(sql_query, values = []){
         return new Promise((resolve, reject) => {
-            this.connection.query(sql_query, (err, result) => {
+            this.connection.query(sql_query, values, (err, result) => {
                 if(err){
                     console.log(err)
                     throw reject(err)
@@ -36,6 +36,19 @@ class DBhandler {
         })
     }
 
+    update(tableName, field_to_update, value,  condition ){
+        const sql = `UPDATE ${tableName} SET ${field_to_update} = ${value} WHERE ${condition};`
+        console.log(sql)
+        return new Promise((resolve, reject) => {
+            this.connection.query(sql, (err, result) => {
+                if(err){
+                    console.log(err)
+                    throw reject(err)
+                }
+                resolve(result)
+            })
+        })
+    }
 }
 
 const con = new DBhandler("localhost", "root", "", "Library")

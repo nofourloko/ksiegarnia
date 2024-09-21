@@ -5,14 +5,26 @@ const User = require('../Model/User')
 const { con }  = require('../Controller/db_connection')
 const { getCartItems } = require('../Controller/cookiesHelper')
 
-router.get("/auth", (req,res) => {
-    res.render(
-        './auth/index.ejs', 
-        {
-            categories: req.categories || [], 
-            numberOfItemsInCart : getCartItems(req).length 
-        }
-    )
+router.use("/", (req, res, next) => {
+    if(!req.cookies['User']){
+        next()
+    }else{
+        res.redirect('/user')
+    }
+})
+
+router.get("/", (req,res) => {
+    if(req.cookies['User']){
+        res.redirect("/user")
+    }else{
+        res.render(
+            './auth/index.ejs', 
+            {
+                categories: req.categories || [], 
+                numberOfItemsInCart : getCartItems(req).length 
+            }
+        )
+    }
 
 })
 
@@ -26,7 +38,7 @@ router.get('/register', (req, res) => {
     )
 })
 
-router.post('/auth/emailCheck', (req, res) => {
+router.post('/emailCheck', (req, res) => {
     const {email, password} = req.body
     con.select('Uzytkownicy', `Email = '${email}' AND Hasło = '${password}'`)
         .then(result => {
@@ -42,7 +54,7 @@ router.post('/auth/emailCheck', (req, res) => {
         })
 })
 
-router.post('/auth/registerUser', (req, res) => {
+router.post('/registerUser', (req, res) => {
     const {email, password, phone} = req.body
     const user = new User(email, password, phone)
     const sql = `

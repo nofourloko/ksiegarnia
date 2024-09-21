@@ -51,7 +51,7 @@ router.get('/', (req, res) => {
     )
 })
 
-router.get('/:id/:category_title', (req, res) => {
+router.get('/products/:id/:category_title', (req, res) => {
     const { id} = req.params
     const filtred_books = req.books.filter(item => item.Id_kategorii === parseInt(id))
     res.render(
@@ -66,22 +66,47 @@ router.get('/:id/:category_title', (req, res) => {
 
 router.post('/newItem', (req, res) => {
     const { book } = req.body
-    const upadtedItems = [book]
     const previousItems = getCartItems(req)
+    let found = false
 
     if (previousItems) {
-        upadtedItems.push(...previousItems);
+
+        previousItems.map((el,idx) => {
+            if(el.id === book){
+                el.quantity = el.quantity + 1
+                found = true
+            }
+            return el
+        })
+
+        if(!found){
+            previousItems.push({id : book, quantity: 1});
+        }      
     }
 
-    res.cookie('CartProducts', JSON.stringify(upadtedItems), { maxAge: 3600 * 1000 });
-    res.json({ success : true});
+    res.cookie('CartProducts', JSON.stringify(previousItems), { maxAge: 3600 * 1000 });
+    res.json({ success : true, found});
 })
 
 
 router.post('/removeItem', (req, res) => {
     const { id } = req.body
-    const upadtedItems = getCartItems(req).filter(item => item !== id)  
+    console.log(id)
+    const upadtedItems = getCartItems(req).filter(item => item.id !== id)  
     res.cookie('CartProducts', JSON.stringify(upadtedItems), { maxAge: 3600 * 1000 });
+    res.json({ success : true});
+})
+
+router.post('/changeItemQuantity', (req, res) => {
+    const { id, value } =  req.body
+    const previousItems = getCartItems(req).map(item => {
+        if(item.id === id){
+            item.quantity = parseInt(value)
+        }
+
+        return item
+    })
+    res.cookie('CartProducts', JSON.stringify(previousItems), { maxAge: 3600 * 1000 });
     res.json({ success : true});
 })
 
@@ -99,4 +124,4 @@ router.post('/search', (req, res) => {
  
 })
 
-module.exports = router
+module.exports = router, date_settings

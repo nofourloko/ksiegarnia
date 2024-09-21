@@ -1,12 +1,15 @@
 
-const popUpShow = (error) => {
-    const pop_up = document.getElementById(error ?'pop_up_error' :'pop_up')
+const popUpShow = (id) => {
+    const pop_up = document.getElementById(id)
     pop_up.style.visibility= 'visible'
     pop_up.classList.remove('slide-out-bottom')
     pop_up.classList.add('slide-in-bottom')
+    document.body.style.pointerEvents = 'none';
+
     setTimeout(() => {
         pop_up.classList.remove('slide-in-bottom')
         pop_up.classList.add('slide-out-bottom')
+        document.body.style.pointerEvents = 'auto';
     },2000)
 }
 
@@ -106,15 +109,23 @@ async function addItemToCard(id){
         
         const result = await response.json()
         if(result.success){
-            const cartBadge = document.getElementById('cartBadge')
-            cartBadge.textContent = parseInt(cartBadge.textContent) + 1
-            popUpShow(false)
+            if(!result.found){
+                const cartBadge = document.getElementById('cartBadge')
+                cartBadge.textContent = parseInt(cartBadge.textContent) + 1
+            }
+
+            if(window.location.href.split("/")[3] === "cart"){
+                window.location.reload()
+            }else{
+                popUpShow('pop_up')
+            }
+            
         }
         
 
     }catch(err){
         console.log(err)
-        popUpShow(true)
+        popUpShow('pop_up_error')
     }
  
 }
@@ -157,7 +168,7 @@ const selectedBook = (id) => {
     window.location.href = `/ksiazka/${id}`
 }
 
-async function orderCompletion(form_data, cartItems) {
+async function orderCompletion(form_data, cartItems, price) {
     const userInfo = JSON.parse(form_data)
     const items_ids = JSON.parse(cartItems).map(item => {
         return item.id
@@ -170,8 +181,10 @@ async function orderCompletion(form_data, cartItems) {
               },
             body: JSON.stringify(
                 {
-                    userInfo,
-                    items_ids
+                    delivery: userInfo['Metoda dostawy'],
+                    payment: userInfo['Metoda płatności'],
+                    items_ids,
+                    price : parseFloat(price).toFixed(2)
                 }
             ),
         })
@@ -209,3 +222,109 @@ async function orderCompletion(form_data, cartItems) {
 
     showSection('bookmark_opis');
 });
+
+
+const selectRate = (rate) => {
+    const all_rates = document.querySelectorAll('.rate_options')
+    all_rates.forEach((option, index) =>{
+        
+        if(index < rate){
+             option.style.color = '#e8b923'
+             option.setAttribute('id', 'star_clicked')
+        }else{
+            option.style.color = 'black'
+        }
+    })
+    localStorage.setItem('rate', rate)
+}
+
+const addComment = async (e, id) => {
+    e.preventDefault()
+    const rate = localStorage.getItem('rate')
+    if(!rate){
+        return false
+    }
+    console.log(rate)
+    try {
+        const response = await fetch('http://localhost:5000/user/review/add', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+              },
+            body: JSON.stringify(
+                {
+                   id, 
+                   review_text : e.target[0].value,
+                   rate: rate
+                }
+            ),
+        })
+        const { success } = await response.json()
+        if(success){
+            window.location.reload() 
+        }
+
+    } catch (error) {
+        console.log(error)
+        return
+    }
+}
+
+const showComment = (id) => {
+    const element = document.getElementById(id)
+    if(element.style.display === 'none'){
+        element.style.display = 'block'
+    }else{
+        element.style.display = 'none'
+    }
+
+}
+
+const add_favourite = async (book_id) => {
+    try {
+        const response = await fetch(`http://localhost:5000/user/add_favourite/${book_id}`, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+              },
+        })
+
+        const { success } = await response.json()
+
+        if(success){
+            popUpShow('pop_up_bookmarks')
+        }
+
+    } catch (error) {
+        console.log(error)
+        return
+    }
+}
+
+const changeQuantity = async (book_id, value, spn) => {
+    const span = document.getElementById(spn)
+    const new_quantity = parseInt(span.textContent) + value
+    const url = new_quantity === 0 ? 'removeItem' : 'changeItemQuantity'
+
+    try {
+        const response = await fetch(`http://localhost:5000/${url}`, {
+                method: 'POST',
+                body : JSON.stringify({id : book_id, value : new_quantity}),
+                headers: {
+                    "Content-Type": "application/json",
+                  },
+            })
+    
+        const { success } = await response.json()
+        
+        if(success){
+            window.location.reload()
+            
+        }
+    
+    } catch (error) {
+        console.log(error)
+        return
+    }
+    
+}

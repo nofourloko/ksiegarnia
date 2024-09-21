@@ -78,13 +78,18 @@ h1{
   -webkit-background-clip: text; /* Gradient text effect */
   background-clip: text;/* Slight letter spacing for readability */
 }
+#star_clicked, .bookmarks_selected_book:hover {
+  transform: scale(1.02); 
+  transition: 0.3s ease-in-out
+}
 
 .bookmarks_selected_book:hover{
   cursor: pointer; 
-  transform: scale(1.02); 
   border-bottom:2px solid #007bff;
-  transition: 0.3s ease-in-out
+
 }
+
+
 
 @media screen and (max-width: 400px){
   .page_icon{
@@ -202,9 +207,10 @@ h1{
 
 
 
-#pop_up,#pop_up_error{
+#pop_up,#pop_up_error,#pop_up_bookmarks{
     border: 1px solid white;
     position: fixed;
+    z-index: 99999;
     bottom: 30px;
     left: 44%;
     display: flex;
@@ -213,9 +219,11 @@ h1{
     justify-content: center;
     padding: 10px 15px !important;
     gap: 5px;
-    background-color: green!important;
-    color: white;
     border-radius: 20px;
+    color: white;
+}
+#pop_up{
+  background-color: green!important;
 }
 
 #pop_up_error{
@@ -575,7 +583,7 @@ h1{
     translate: 10px;
     cursor: pointer;
   }
-  .container{
+  .container,#fav_comments{
     animation: slide-in-top 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both  !important; 
   }
 
@@ -734,3 +742,22 @@ gap: 10px;
   align-items: center;
 }
 
+.address_id{
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 10px 15px;
+  background-color: #0275d8;
+  border-radius: 50%;
+  
+}
+
+.start_center{
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 10px;
+}

@@ -16,43 +16,113 @@ const purchase_stages = [
 ]
 
 router.get('/', (req, res) => {
-    let cartItems = []
-    let price = 0
-    
-    if(req.cookies['CartProducts']){
-        cartItems = getCartItems(req)
-        cartItems.forEach((element, idx )=> {
-            console.log(element)
-            const found_item = req.books.find(item => item.id === parseInt(element))
-            cartItems[idx] = found_item
-            price += found_item.Cena
-        });
-        price = Math.round(price)
-    }
-    console.log(cartItems)
+    let cartItems = getCartItems(req)
+    let price = 0.0
 
-    res.render('./cart/index.ejs', 
-        { 
-            cartItems : cartItems , 
-            categories: req.categories, 
-            purchase_stages, 
-            current : [ 'Koszyk' ], 
-            price, 
-            numberOfItemsInCart : cartItems.length 
+    if(cartItems.length > 0){
+        
+        cartItems.forEach((element, idx )=> {
+            const found_item = req.books.find(item => item.id === parseInt(element.id))
+            const price_for_quantities = (parseFloat(found_item.Cena) * parseFloat(element.quantity)).toFixed(2)
+            cartItems[idx] = { ...found_item , quantity : element.quantity }
+            cartItems[idx].Cena = price_for_quantities
+            price = (parseFloat(price) +  parseFloat(price_for_quantities)).toFixed(2)
+        });
+
+        res.render('./cart/index.ejs', 
+            { 
+                cartItems : cartItems , 
+                categories: req.categories, 
+                purchase_stages, 
+                current : [ 'Koszyk' ], 
+                price, 
+                numberOfItemsInCart : cartItems.length ,
+                suggested : []
+            }
+        )
+    }else{
+        
+        if(req.cookies['User']){
+            const userId = JSON.parse(req.cookies['User']).id
+            
+            con.query(`
+                SELECT 
+                    Książki.id, Autor, Tytuł, Cena
+                FROM 
+                    Książki 
+                JOIN 
+                    ulubione 
+                ON Książki.id = ulubione.id_książki WHERE ulubione.id_uzytkownika = ${userId}
+            `)
+            .then(result => {
+                console.log(result)
+                res.render('./cart/index.ejs', 
+                    { 
+                        cartItems : cartItems , 
+                        categories: req.categories, 
+                        purchase_stages, 
+                        current : [ 'Koszyk' ], 
+                        price, 
+                        numberOfItemsInCart : cartItems.length,
+                        suggested : result
+                    }
+                )
+            })
+            .catch(err => {
+                console.log('err', err)
+            })
+        }else{
+            res.render('./cart/index.ejs', 
+                { 
+                    cartItems : cartItems , 
+                    categories: req.categories, 
+                    purchase_stages, 
+                    current : [ 'Koszyk' ], 
+                    price, 
+                    numberOfItemsInCart : cartItems.length,
+                    suggested : []
+                }
+            )
         }
-    )
+        
+    }
+   
 })
 
 router.get('/purchase/delivery', (req, res) => {
-    res.render(
-        './cart/shipping.ejs', 
+    if(req.cookies['User']){
+        const id_user = JSON.parse(req.cookies['User']).id
+        con.select(`Adresy`, `id_uzytkownika = ${id_user}`)
+        .then(result => {
+            console.log(result)
+            res.render(
+                './cart/shipping_logged.ejs', 
+                {
+                    categories:req.categories, 
+                    purchase_stages, 
+                    current : [ 'Koszyk' ,'Dostawa i płatność' ] , 
+                    numberOfItemsInCart : getCartItems(req).length,
+                    addreses : result
+                }
+            )
+        })
+        .catch(err => {
+            console.log(err)
+            return
+        })
+    } else {
+      res.render(
+        `./cart/shipping.ej`, 
         { 
             categories:req.categories, 
             purchase_stages, 
             current : [ 'Koszyk' ,'Dostawa i płatność' ] , 
             numberOfItemsInCart : getCartItems(req).length
         }
-    )
+    )  
+    }
+    
+    
 })
 
 router.get('/purchase/no-regestration', (req, res) => {
@@ -69,11 +139,16 @@ router.get('/purchase/no-regestration', (req, res) => {
 
 router.get('/purchase/finaliztion', (req, res) => {
     const cartItems = getCartItems(req)
-    const form_data = req.session.form_data || {};
+    const form_data = req.query;
+    let price = 0.0
 
     cartItems.forEach((element, idx )=> {
-        const found_item = req.books.find(item => item.id === parseInt(element))
-        cartItems[idx] = found_item
+        const found_item = req.books.find(item => item.id === parseInt(element.id))
+        const price_for_quantities = (parseFloat(found_item.Cena) * parseFloat(element.quantity)).toFixed(2)
+        cartItems[idx] = { ...found_item , quantity : element.quantity }
+        cartItems[idx].Cena = price_for_quantities
+        price = (parseFloat(price) +  parseFloat(price_for_quantities)).toFixed(2)
+        console.log(price)
     });
 
     res.render(
@@ -84,6 +159,7 @@ router.get('/purchase/finaliztion', (req, res) => {
             purchase_stages, 
             current : [ 'Koszyk' ,'Dostawa i płatność', "Finalizacja" ] , 
             form_data,  
+            price,
             numberOfItemsInCart : cartItems.length
         }
     )
@@ -92,7 +168,9 @@ router.get('/purchase/finaliztion', (req, res) => {
 
 router.post('/purchase/complete', (req, res) => {
     const products_ids =  JSON.stringify(req.body.items_ids)
+    const {price, payment, delivery} = req.body
     const shipping_user_info = req.body.userInfo
+    console.log(products_ids)
 
     const today = new Date();
     const formattedDate = today.getFullYear() + '-' +
@@ -105,8 +183,12 @@ router.post('/purchase/complete', (req, res) => {
     }
 
     const sql = `
-        INSERT INTO \`Zamówienia\`(\`Data_zakupu\`, \`Id_użytkownika\`, \`Przedmioty\`, \`Zapłacona_kwota\`, \`id_adresu\`) 
-        VALUES ('${formattedDate}',${user_id},'${products_ids}',${30},${null})`
+        INSERT INTO 
+            \`Zamówienia\`(
+                \`Data_zakupu\`, \`Id_użytkownika\`, \`Przedmioty\`, \`Zapłacona_kwota\`, 
+                \`id_adresu\`,\`oceniona\`,\`Metoda dostawy\`,\`Metoda płatności\`
+            ) 
+        VALUES ('${formattedDate}',${user_id},'${products_ids}',${price},${null}, ${0}, '${delivery}', '${payment}' )`
 
     con.query(sql)
         .then(result =>{
@@ -127,8 +209,31 @@ router.get('/purchase/success/:orderId', (req, res) => {
 
 router.post('/finalization', (req, res) => {
     const form_data = req.body
-    req.session.form_data = form_data;
-    res.redirect('/cart/purchase/finaliztion')
+    const sql = `
+        INSERT INTO Adresy (Telefon, Ulica, Województwo, \`Kod pocztowy\`, Miasto, \`E-mail\`, id_uzytkownika) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+        form_data.Telefon,
+        form_data.Ulica,
+        form_data.Województwo,
+        form_data['Kod_pocztowy'],
+        form_data.Miasto,
+        form_data['Email'],
+        form_data.id_uzytkownika
+    ];
+
+    con.query(sql,values)
+        .then(result => {
+            const queryString = new URLSearchParams(form_data).toString();
+            res.redirect(`/cart/purchase/finaliztion?${queryString}`)
+        })
+        .catch(err => {
+            console.log(err)
+            return
+        })
+    
 })
 
 module.exports = router
