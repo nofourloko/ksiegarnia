@@ -24,7 +24,12 @@
                     </a>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="email" class="form-control" id="emailInput" name="email" placeholder="name@example.com" required>
+                    <input type="text" class="form-control" id="loginInput" name="login" placeholder="name@example.com" required>
+                    <label for="emailInput">Login</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="emailInput" name="email" placeholder="E-mail" required>
                     <label for="emailInput">E-mail</label>
                 </div>
                 
@@ -39,6 +44,7 @@
                     <input type="tel" class="form-control" id="phoneInput" name="password" placeholder="Telefon" required style="margin-bottom: 0px !important;">
                     <label for="passwordInput"> Telefon</label>
                 </div>
+                <span id="login_msg" style="color: red; font-size: 16px" class="text-center my-3"></span>
                 <button class="btn btn-success m-auto" type="submit">Zarejestruj się</button>
             </div>
         </form>

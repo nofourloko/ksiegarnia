@@ -41,9 +41,14 @@
           </div>
         <% }) %>
         <div class="form-data text-end bordered ">
-          <span class="heading-text">Kwota do zapłaty: <%= price %>zł</span>
+          <% if(price > 200){ %>
+          <span class="heading-text">Kwota do zapłaty: <%= (price - (20 / 100) * price).toFixed(2)  %>zł</span>
+          <%}else{ %>
+            <span class="heading-text">Kwota do zapłaty: price zł</span>
+            <%}%>
+         
         </div>
-        <button class="btn btn-success text-center mb-3" onclick="orderCompletion('<%= JSON.stringify(form_data) %>', '<%= JSON.stringify(cartItems) %>','<%= price %>')">Zamów</button>
+        <button class="btn btn-success text-center mb-3" onclick="orderCompletion('<%= JSON.stringify(form_data) %>', '<%= JSON.stringify(cartItems) %>','<%= price %>', '<%= address_id %>')">Zamów</button>
       </div>
     </div>
   </div>

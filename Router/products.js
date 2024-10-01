@@ -1,127 +1,129 @@
-const express = require('express')
-const router = express.Router()
-const { con }  = require('../Controller/db_connection')
-const { getCartItems } = require('../Controller/cookiesHelper')
+const express = require('express');
+const router = express.Router();
+const { con } = require('../Controller/db_connection');
+const StaticData = require('../Controller/staticData');
+const View = require('../Controller/View');
+const Cart = require("../Controller/cart");
 
-const date_settings = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  };
-
-
-
-router.get('/ksiazka/:id', (req, res) => {
-    const { id } = req.params
-
-    con.select('Książki', `id = ${id}`)
-        .then( selectedBook => {
-            con.select('Opinie', `id_książki = ${id}`)
-                .then( opinions => {
-                    const changed_date_opinions = opinions.map(item => {
-                        const date = new Date(item.data_dodania)
-                        item.data_dodania = date.toLocaleDateString('pl-PL', date_settings)
-                        return item
-                    })
-
-                    res.render(
-                        './bookPage/index.ejs', 
-                        {
-                            books : req.books || [], 
-                            categories: req.categories || [], 
-                            numberOfItemsInCart: getCartItems(req).length,
-                            selectedBook : selectedBook[0],
-                            opinions : changed_date_opinions
-                        }
-                    )
-                })
-                .catch(err => console.log(`Database error:${err}`))
-        })
-        .catch(err => console.log(`Database error:${err}`))
-})
+function formatOpinionsDate(opinions) {
+    return opinions.map(item => {
+        const date = new Date(item.data_dodania);
+        item.data_dodania = date.toLocaleDateString('pl-PL', StaticData.getDateSettings());
+        return item;
+    });
+}
 
 router.get('/', (req, res) => {
-    res.render(
-        './main/index.ejs', 
-        {
-            books : req.books || [], 
-            categories: req.categories || [],
-            numberOfItemsInCart: getCartItems(req).length
-        }
-    )
-})
+    View.renderView(req, res, './main/index.ejs', {req, text: 'Wszystkie dostępne ksiązki'})
+});
+
+router.get('/ksiazka/:id', (req, res) => {
+    const query1 = 'SELECT * FROM Książki WHERE id = ?'
+    const query2 = 'SELECT * FROM Opinie WHERE id_książki = ?'
+
+    con.executeQuery(query1, [req.params.id], res, ( selectedBook ) => {
+        con.executeQuery(query2, [req.params.id], res, ( opinions ) => {
+            const additionalData = {
+                opinions : formatOpinionsDate(opinions),
+                selectedBook: selectedBook[0],
+                req
+            }
+
+            View.renderView(req, res,'./bookPage/index.ejs', additionalData );
+        })
+    })
+});
+
 
 router.get('/products/:id/:category_title', (req, res) => {
-    const { id} = req.params
-    const filtred_books = req.books.filter(item => item.Id_kategorii === parseInt(id))
-    res.render(
-        './main/index.ejs', 
-        {   
-            books : filtred_books || [], 
-            categories: req.categories || [],
-            numberOfItemsInCart: getCartItems(req).length
-        }
-    )
-})
+    const {category_title, id} = req.params
+    const filteredBooks = req.books.filter(item => item.Id_kategorii === parseInt(req.params.id));
+    req.books = filteredBooks
+
+    View.renderView(req, res, './main/index.ejs', { 
+        req, 
+        text : category_title, 
+        breadcrumbs :  [
+            {
+                href : '/',
+                title: 'Ksiązki'
+            },
+            {
+                href : `/products/${id}/${category_title}`,
+                title: category_title
+            }
+        ]
+       
+    });
+    
+});
+
 
 router.post('/newItem', (req, res) => {
-    const { book } = req.body
-    const previousItems = getCartItems(req)
-    let found = false
+    const { book } = req.body;
+    const cart = new Cart(req)
+    const updatedItems = cart.updateCartItems(req, book, 'increase');
 
-    if (previousItems) {
-
-        previousItems.map((el,idx) => {
-            if(el.id === book){
-                el.quantity = el.quantity + 1
-                found = true
-            }
-            return el
-        })
-
-        if(!found){
-            previousItems.push({id : book, quantity: 1});
-        }      
+    const info  = {
+        success: true, 
+        found: cart.getCartItems(req).some(item => item.id === book) 
     }
 
-    res.cookie('CartProducts', JSON.stringify(previousItems), { maxAge: 3600 * 1000 });
-    res.json({ success : true, found});
-})
-
+    cart.updateCartItemsCookie(res, updatedItems);
+    res.json(info);
+});
 
 router.post('/removeItem', (req, res) => {
-    const { id } = req.body
+    const { id } = req.body;
+    const cart = new Cart(req)
     console.log(id)
-    const upadtedItems = getCartItems(req).filter(item => item.id !== id)  
-    res.cookie('CartProducts', JSON.stringify(upadtedItems), { maxAge: 3600 * 1000 });
-    res.json({ success : true});
-})
+    const updatedItems = cart.cartItems.filter(item => item.id !== id);
+    cart.updateCartItemsCookie(res, updatedItems);
+    res.json({ success: true });
+});
 
 router.post('/changeItemQuantity', (req, res) => {
-    const { id, value } =  req.body
-    const previousItems = getCartItems(req).map(item => {
-        if(item.id === id){
-            item.quantity = parseInt(value)
-        }
-
-        return item
-    })
-    res.cookie('CartProducts', JSON.stringify(previousItems), { maxAge: 3600 * 1000 });
-    res.json({ success : true});
-})
+    const cart = new Cart(req)
+    const updatedItems = cart.updateCartItems(req, req.body.id, 'updateQuantity');
+    cart.updateCartItemsCookie(res, updatedItems);
+    res.json({ success: true });
+});
 
 router.post('/search', (req, res) => {
-    const { searched_title } = req.body
-    const filtred_books = req.books.filter(item => item.Tytuł.toLocaleLowerCase().includes(searched_title.toLocaleLowerCase()))
-    res.render(
-        './main/index.ejs', 
-        {   
-            books : filtred_books || [], 
-            categories: req.categories || [],
-            numberOfItemsInCart: getCartItems(req).length
+    const { searched_title } = req.body;
+    const filteredBooks = req.books.filter(item => item.Tytuł.toLowerCase().includes(searched_title.toLowerCase()));
+    req.books = filteredBooks
+    View.renderView(req, res, './main/index.ejs',{req, text : `Wyniki wyszukiwania dla '${searched_title}'`, breadcrumbs : [
+        {
+            href: '/',
+            title: 'Ksiązki'
+        },
+        {
+            href: ``,
+            title: ``
+        },
+    ]});
+});
+
+router.get('/ksiazki/:id/:category/:subcategory', (req, res) => {
+    const { id, category, subcategory } = req.params
+    const filteredBooks = req.books.filter(item => item.Id_podkategorii === parseInt(id));
+    console.log(filteredBooks)
+    req.books = filteredBooks
+    View.renderView(req, res, './main/index.ejs',{req, text : subcategory , breadcrumbs : [
+        {
+            href: '/',
+            title: 'Ksiązki'
+        },
+        {
+            href: `/products/${filteredBooks[0].Id_kategorii}/${category}`,
+            title: category
+        },
+        {
+            href: `/products/${id}/${category}/${subcategory}`,
+            title: subcategory
         }
-    )
- 
+    ]} )
 })
 
-module.exports = router, date_settings
+module.exports = router

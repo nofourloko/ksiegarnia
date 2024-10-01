@@ -5,49 +5,21 @@
 </head>
 <body> 
       <%- include('../../partials/nav.ejs') %>
-      <%- include('../../partials/bootstrap.ejs') %>
+      
       <div class="container">
-            <div class="row bordered">
+            <div class="row bordered mt-5">
+                  <%- include('../../partials/navigation.ejs')%>
                   <div class="col-lg-9">
-                      <h1><strong><i class="bi bi-house-check" style="color:#0275d8"></i>  Moje adresy</strong></h1>
+                      <h1><strong><i class="bi bi-house-check" style="color:#0275d8"></i>Moje adresy</strong></h1>
                   </div>
                   <div class="col-lg-3 text-end">
-                        <button class="btn btn-primary btn-lg" >Dodaj adres dostawy <i class="bi bi-house-add"></i></button>
+                        <a class="btn btn-primary btn-lg"  href="/user/address_form">Dodaj adres dostawy <i class="bi bi-house-add"></i></a>
                   </div>
               </div>
               <div class="row p-5">
                   <%if(addreses.length > 0){ %>
                         <% addreses.forEach((address,idx) => { %>
-                              <div class="col-lg-3 p-3" style="border: 1px solid #ddd;">
-                                    <div class="d-flex" style="justify-content: space-between;">
-                                          <div class="d-flex start_center">
-                                                <div class="address_id">
-                                                      <span><%= idx + 1 %></span>
-                                                      
-                                                </div>
-                                                <span class="book-title">Domyślny</span>
-                                                
-                                                
-                                          </div>
-                                          <div>
-                                                <button class="btn btn-outline-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                      <i class="bi bi-three-dots text-end"></i>
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="#">Usuń</a></li>
-                                                <li><a class="dropdown-item" href="#">Zmień</a></li>
-                                                </ul>  
-                                          </div>
-                                    </div>
-                                    <div class="d-flex flex-column text-start px-3 pt-2">
-                                          <% Object.keys(address).forEach((key) => { %>
-                                                <% if(!key.includes('id')){ %>
-                                                      <span> <%= address[key] %></span>
-                                                <%} %>
-                                          <% }) %>
-                                    </div>
-                                    
-                              </div>
+                              <%- include('../../partials/address_card.ejs', {address, idx, order: false}) %>
                         <%})%>
                   <%}else{ %>
                         <span class="title">Brak adresów do wyświetlenia</span>

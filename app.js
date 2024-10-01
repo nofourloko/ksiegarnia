@@ -27,31 +27,27 @@ app.use(session({
     saveUninitialized: true
   }));
 
-app.use("/", async (req, res, next) => {
-    let sub_categories
-    req.categories = []
-    const sql = 'SELECT tytul, kategoria_id FROM `Podkategorie`'
 
-    con.query(sql)
-        .then( sub => {
-            sub_categories = sub
-            return con.select('Kategorie')      
-        })
-        .then( categories => {
+app.use("/", async (req, res, next) => {
+
+    const query_subcategories = 'SELECT * FROM `Podkategorie`'
+    con.executeQuery(query_subcategories, [], res, (sub) => {
+        const query_categories = "SELECT * FROM Kategorie"
+        const sub_categories = sub
+        con.executeQuery(query_categories, [], res, (categories) => {
+            const query_books = "SELECT * FROM Książki"
+            req.categories = []
             categories.forEach((item, idx) => {
-                const sub_categories_array = sub_categories.filter(el => el.kategoria_id === item.id).map(el => el.tytul)
+                const sub_categories_array = sub_categories.filter(el => el.kategoria_id === item.id)
                 req.categories.push(new Category(item.id, item.Tytuł, sub_categories_array))
             })
-            return con.select('Książki')      
+            con.executeQuery(query_books, [], res, (books) => {
+                req.books = books
+                next()
+            })
+
         })
-        .then(books => {
-            req.books = books
-            next()
-        })
-        .catch((err) => {
-            console.log(err)
-            next()
-        })
+    })
 });
 
 app.use(cookieParser());
@@ -65,8 +61,12 @@ app.use('/', products)
 app.use('/auth', auth)
 app.use('/user', user)
 app.use('/cart', cart)
-app.get('/', (req, res) => {})
+
+app.use((req, res, next) => {
+    res.status(404).render('./404.ejs');
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })
+

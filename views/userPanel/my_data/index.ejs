@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head.ejs') %>
+</head>
+<body> 
+    <%- include('../../partials/nav.ejs') %>
+      <%- include('../../partials/bootstrap.ejs') %>
+      <div class="container mt-5">
+        <div class="row bordered">
+            <%- include('../../partials/navigation.ejs')%>
+            <!-- Title -->
+            <div class="col-lg-9">
+                <h1><strong> <i class="bi bi-person-check" style="color:#0275d8"></i> Moje dane </strong></h1>
+            </div>
+        </div>
+    
+        <!-- Form Start -->
+        <form action="/user/update-profile" method="POST" class="row mt-4">
+            <!-- Imię -->
+            <div class="col-lg-6 mb-3">
+                <label for="firstName"><strong>Imię:</strong></label>
+                <input type="text" class="form-control" id="firstName" name="Imie" value="<%= userInfo.Imie %>">
+            </div>
+    
+            <!-- Nazwisko -->
+            <div class="col-lg-6 mb-3">
+                <label for="lastName"><strong>Nazwisko:</strong></label>
+                <input type="text" class="form-control" id="lastName" name="Nazwisko" value="<%= userInfo.Nazwisko %>">
+            </div>
+    
+            <!-- Email -->
+            <div class="col-lg-6 mb-3">
+                <label for="email"><strong>Email:</strong></label>
+                <input type="email" class="form-control" id="email" name="Email" value="<%= userInfo.Email %>">
+            </div>
+    
+            <!-- Login -->
+            <div class="col-lg-6 mb-3">
+                <label for="login"><strong>Login:</strong></label>
+                <input type="text" class="form-control" id="login" name="Login" value="<%= userInfo.login %>">
+            </div>
+    
+            <!-- Telefon -->
+            <div class="col-lg-6 mb-3">
+                <label for="phone"><strong>Telefon:</strong></label>
+                <input type="tel" class="form-control" id="phone" name="Telefon" value="<%= userInfo.Telefon %>">
+            </div>
+    
+            <!-- Hasło -->
+            <div class="col-lg-6 pt-4">
+               <span class="btn btn-outline-dark" style="width: 100%;" data-bs-toggle="modal" data-bs-target="#exampleModal">Zmień hasło</span>
+            </div>
+    
+            <!-- Submit Button -->
+            <div class="col-12">
+                <button type="submit" class="btn btn-success">Zapisz zmiany</button>
+            </div>
+        </form>
+    </div>
+
+      
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Zmiana hasła</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              
+            </div>
+            <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="currentPassword" class="form-label">Obecne hasło</label>
+                      <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="newPassword" class="form-label">Nowe hasło</label>
+                      <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="confirmPassword" class="form-label">Potwierdź nowe hasło</label>
+                      <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-success" onclick="passwordChange('<%= userInfo.Hasło %>')">Zapisz zmiany</button>
+                    <span id="password_message"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+     
+      
+</body>
+</html>
+<script>
+
+    const passwordChange = async (password) => {
+        const currentPassword = document.getElementById('currentPassword').value
+        const newPassword = document.getElementById('newPassword').value
+        const confirmPassword = document.getElementById('confirmPassword').value
+        const msg = document.getElementById('password_message')
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d|.*[\W_]).{8,}$/;
+        
+            if(newPassword === confirmPassword){
+                if(currentPassword === ""){
+                    msg.textContent = "Obecne hasło nie moze być puste"
+                    return false
+                }
+                if(newPassword === ""){
+                    msg.textContent = "Nowe hasło nie moze być puste"
+                    return false
+                }
+
+                if (!passwordRegex.test(newPassword)) {
+                    msg.textContent = "Nowe hasło nie jest zgodne z kryteriami"
+                    return false;
+                }else{
+                    try {
+                        const response = await fetch('http://localhost:5000/user/password_change', {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json",
+                              },
+                            body: JSON.stringify(
+                                {
+                                    currentPassword,
+                                    newPassword,
+                                    confirmPassword
+                                }
+                            ),
+                        })
+    
+                        const { success } = await response.json()
+                        if(success){
+                            msg.textContent = 'Hasło zostało zmienione'
+                            setTimeout(() => {
+                                window.location.href = `/user/myinfo`
+                            },2000)
+                        }else{
+                            msg.textContent = "Podane hasło różni się od aktualnego"
+                        }
+                        
+                        
+                    } catch (error) {
+                        window.location.href = '/'
+                    }
+                }
+                
+            }else{
+                msg.textContent = "Hasła nie są takie same"
+            }
+            
+        
+    }
+
+</script>

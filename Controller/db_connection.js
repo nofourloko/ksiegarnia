@@ -23,32 +23,15 @@ class DBhandler {
         })
 
     }
-    select(tableName, condition = null){
-        const sql = `SELECT * FROM ${tableName} WHERE ${condition? condition : 1}`
-        return new Promise((resolve, reject) => {
-            this.connection.query(sql, (err, result) => {
-                if(err){
-                    console.log(err)
-                    throw reject(err)
-                }
-                resolve(result)
-            })
-        })
-    }
 
-    update(tableName, field_to_update, value,  condition ){
-        const sql = `UPDATE ${tableName} SET ${field_to_update} = ${value} WHERE ${condition};`
-        console.log(sql)
-        return new Promise((resolve, reject) => {
-            this.connection.query(sql, (err, result) => {
-                if(err){
-                    console.log(err)
-                    throw reject(err)
-                }
-                resolve(result)
-            })
-        })
-    }
+    executeQuery = (query, params = [], res, onSuccess) => {
+        this.query(query, params)
+            .then(result => onSuccess(result))
+            .catch(err => {
+                console.log(err);
+                res.render('./error.ejs', {message : 'Wystąpił błąd podczas przetwarzania twojego zapytania w bazie danych'})
+            });
+    };
 }
 
 const con = new DBhandler("localhost", "root", "", "Library")

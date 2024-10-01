@@ -1,0 +1,9 @@
+<% if(breadcrumbs.length > 0) { %>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <% breadcrumbs.forEach(el => { %>
+                <li class="breadcrumb-item"><a href='<%= el.href %>'><%= el.title %></a></li>
+           <%  }) %>
+        </ol>
+      </nav>
+<% } %>

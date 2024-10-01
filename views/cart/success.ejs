@@ -18,8 +18,10 @@
                     <span style="font-size: 20px;text-indent :1em;">Numer zamównienia : <strong><%= orderId %></strong></span>
                 </div>
                 <div style="display: flex;justify-content: center; gap:10px" class="mt-5">
-                    <a href="/" class="btn btn-primary">Strona główna</a>
-                    <a href="/" class="btn btn-success">Podgląd zamówienia</a>
+                    <a href="/" class="btn btn-primary">Strona główna</a> 
+                    <% if(logged){ %>
+                    <a href="/user/orders/<%= orderId %>" class="btn btn-success">Podgląd zamówienia</a>
+                    <% } %>
                 </div>
             </div>
 

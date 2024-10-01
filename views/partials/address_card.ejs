@@ -1,0 +1,47 @@
+<div class="col-lg-3 p-3 m-4 address_card"  id="address_card_<%= idx %>" onclick="picked_address('<%= idx %>','<%= amount %>', '<%= address.id %>')">
+    <div class="d-flex" style="justify-content: space-between;" >
+        <div class="d-flex start_center">
+            <div class="address_id">
+                <span><%= idx + 1 %></span>
+            </div>   
+            <% if(address.domyślny === 1){ %>
+                <span class="book-title">Domyślny</span>
+            <% } %>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots text-end"></i>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href='/user/account/adress/<%= address.id %>'>Usuń</a></li>
+                <li><a class="dropdown-item" href="/user/address_form/<%= address.id %>">Zmień</a></li>
+            </ul>  
+        </div>
+    </div>
+    <div class="d-flex flex-column text-start px-3 pt-2">
+        <% Object.keys(address).forEach((key) => { %>
+            <% if(!key.includes('id') && key !== 'domyślny' && key !== 'usuniety'){ %>
+                <span> <%= address[key] %></span>
+            <% } %>
+        <% }) %>
+    </div>
+</div>
+<% if(order) { %>
+    <script>
+
+        const picked_address = (e, amount, id) => {
+            const input_to_populate = document.getElementById('address_id')
+            
+            for(let i = 0; i < amount; i++){
+                const element = document.getElementById(`address_card_${i}`)
+                if(parseInt(e) === i){
+                    element.style.border = '1px solid #0275d8'
+                }else{
+                     element.style.border = '1px solid #ddd'
+                }
+            }
+            input_to_populate.value = id
+        }
+
+    </script>
+<%}%>

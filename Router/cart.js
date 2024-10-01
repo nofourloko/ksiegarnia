@@ -2,21 +2,15 @@ const express = require('express')
 const { con } = require('../Controller/db_connection')
 const router = express.Router()
 const { getCartItems } = require('../Controller/cookiesHelper')
-
-const purchase_stages = [
-    {
-        title : 'Koszyk'
-    },
-    {
-        title : 'Dostawa i płatność'
-    },
-    {
-        title : 'Finalizacja'
-    }
-]
+const StaticData = require('../Controller/staticData')
+const CookiesHelper = require('../Controller/cookiesHelper')
+const View = require('../Controller/View')
+const User = require('../Model/User')
 
 router.get('/', (req, res) => {
-    let cartItems = getCartItems(req)
+    const userId = User.isLogged(req)
+    let cartItems = CookiesHelper.getCartItems(req)
+    console.log(cartItems)
     let price = 0.0
 
     if(cartItems.length > 0){
@@ -29,158 +23,121 @@ router.get('/', (req, res) => {
             price = (parseFloat(price) +  parseFloat(price_for_quantities)).toFixed(2)
         });
 
-        res.render('./cart/index.ejs', 
-            { 
-                cartItems : cartItems , 
-                categories: req.categories, 
-                purchase_stages, 
+        View.renderView(req, res, './cart/index.ejs', {
+            purchase_stages: StaticData.getPurchaseStages(),
+            current : [ 'Koszyk' ],
+            suggested : [],
+            price,
+            cartItems
+        })
+    }else if(userId){
+        const query = `
+            SELECT 
+                Książki.id, Autor, Tytuł, Cena
+            FROM 
+                Książki 
+            JOIN 
+                ulubione 
+            ON Książki.id = ulubione.id_książki WHERE ulubione.id_uzytkownika = ?
+        `
+
+        con.executeQuery(query, [ userId ], res, (result) => {
+            View.renderView(req, res, './cart/index.ejs', {
+                purchase_stages: StaticData.getPurchaseStages(),
                 current : [ 'Koszyk' ], 
                 price, 
-                numberOfItemsInCart : cartItems.length ,
-                suggested : []
-            }
-        )
+                suggested : result,
+                cartItems
+            })
+        })
     }else{
-        
-        if(req.cookies['User']){
-            const userId = JSON.parse(req.cookies['User']).id
-            
-            con.query(`
-                SELECT 
-                    Książki.id, Autor, Tytuł, Cena
-                FROM 
-                    Książki 
-                JOIN 
-                    ulubione 
-                ON Książki.id = ulubione.id_książki WHERE ulubione.id_uzytkownika = ${userId}
-            `)
-            .then(result => {
-                console.log(result)
-                res.render('./cart/index.ejs', 
-                    { 
-                        cartItems : cartItems , 
-                        categories: req.categories, 
-                        purchase_stages, 
-                        current : [ 'Koszyk' ], 
-                        price, 
-                        numberOfItemsInCart : cartItems.length,
-                        suggested : result
-                    }
-                )
-            })
-            .catch(err => {
-                console.log('err', err)
-            })
-        }else{
-            res.render('./cart/index.ejs', 
-                { 
-                    cartItems : cartItems , 
-                    categories: req.categories, 
-                    purchase_stages, 
-                    current : [ 'Koszyk' ], 
-                    price, 
-                    numberOfItemsInCart : cartItems.length,
-                    suggested : []
-                }
-            )
-        }
-        
+        View.renderView(req, res, './cart/index.ejs', {
+            purchase_stages: StaticData.getPurchaseStages(), 
+            current : [ 'Koszyk' ], 
+            price, 
+            suggested : [],
+            cartItems
+        })
     }
    
 })
 
 router.get('/purchase/delivery', (req, res) => {
-    if(req.cookies['User']){
-        const id_user = JSON.parse(req.cookies['User']).id
-        con.select(`Adresy`, `id_uzytkownika = ${id_user}`)
-        .then(result => {
-            console.log(result)
-            res.render(
-                './cart/shipping_logged.ejs', 
-                {
-                    categories:req.categories, 
-                    purchase_stages, 
-                    current : [ 'Koszyk' ,'Dostawa i płatność' ] , 
-                    numberOfItemsInCart : getCartItems(req).length,
-                    addreses : result
-                }
-            )
+    const userId = User.isLogged(req)
+    if(userId){
+        const query = `SELECT * FROM Adresy WHERE id_uzytkownika = ? AND usuniety = 0`
+        con.executeQuery(query, [ userId ], res, (result) => {
+            View.renderView(req, res, './cart/shipping_logged.ejs', {
+                purchase_stages: StaticData.getPurchaseStages(), 
+                current : [ 'Koszyk' ,'Dostawa i płatność' ], 
+                addreses : result
+            })
         })
-        .catch(err => {
-            console.log(err)
-            return
+    }else {
+        View.renderView(req, res, `./cart/shipping.ejs`, {
+            purchase_stages: StaticData.getPurchaseStages(), 
+            current : [ 'Koszyk' ,'Dostawa i płatność' ]
         })
-    } else {
-      res.render(
-        `./cart/shipping.ej`, 
-        { 
-            categories:req.categories, 
-            purchase_stages, 
-            current : [ 'Koszyk' ,'Dostawa i płatność' ] , 
-            numberOfItemsInCart : getCartItems(req).length
-        }
-    )  
     }
-    
-    
 })
 
 router.get('/purchase/no-regestration', (req, res) => {
-    res.render(
-        './cart/shipping-no-registration.ejs', 
-        { 
-            categories: null, 
-            purchase_stages, 
-            current : [ 'Koszyk' ,'Dostawa i płatność' ],
-            numberOfItemsInCart : getCartItems(req).length
-        }
-    )
+    View.renderView(req, res, './cart/shipping-no-registration.ejs', {
+        data : null,
+        provinces: StaticData.getProvinces(),
+        original_url: null,
+        purchase_stages: StaticData.getPurchaseStages(), 
+        current : [ 'Koszyk' ,'Dostawa i płatność' ],
+    })
 })
 
 router.get('/purchase/finaliztion', (req, res) => {
     const cartItems = getCartItems(req)
-    const form_data = req.query;
-    let price = 0.0
+    console.log(req.query)
+    const { address_id } = req.query
+    const sql = "SELECT * FROM Adresy WHERE id = ?"
+    console.log(address_id)
+    con.executeQuery(sql, [ address_id ], res, (result) => {
+        const form_data = result[0]
+            delete form_data.id
+            delete form_data['domyślny']
+            delete form_data.id_uzytkownika
+            delete form_data['usuniety']
+            let price = 0.0
+            form_data['Metoda dostawy'] = req.query['Metoda dostawy']
+            form_data['Metoda płatności'] = req.query['Metoda płatności']
 
-    cartItems.forEach((element, idx )=> {
-        const found_item = req.books.find(item => item.id === parseInt(element.id))
-        const price_for_quantities = (parseFloat(found_item.Cena) * parseFloat(element.quantity)).toFixed(2)
-        cartItems[idx] = { ...found_item , quantity : element.quantity }
-        cartItems[idx].Cena = price_for_quantities
-        price = (parseFloat(price) +  parseFloat(price_for_quantities)).toFixed(2)
-        console.log(price)
-    });
+            cartItems.forEach((element, idx ) => {
+                const found_item = req.books.find(item => item.id === parseInt(element.id))
+                const price_for_quantities = (parseFloat(found_item.Cena) * parseFloat(element.quantity)).toFixed(2)
+                cartItems[idx] = { ...found_item , quantity : element.quantity }
+                cartItems[idx].Cena = price_for_quantities
+                price = (parseFloat(price) +  parseFloat(price_for_quantities)).toFixed(2)
 
-    res.render(
-        './cart/finalization.ejs', 
-        { 
-            categories: null, 
-            cartItems, 
-            purchase_stages, 
-            current : [ 'Koszyk' ,'Dostawa i płatność', "Finalizacja" ] , 
-            form_data,  
-            price,
-            numberOfItemsInCart : cartItems.length
-        }
-    )
+            });
+        View.renderView(req, res, './cart/finalization.ejs' ,
+            { 
+                cartItems, 
+                purchase_stages: StaticData.getPurchaseStages(), 
+                current : [ 'Koszyk' ,'Dostawa i płatność', "Finalizacja" ] , 
+                form_data,
+                price,
+                address_id,
+            }
+        )
+    })
 })
 
 
 router.post('/purchase/complete', (req, res) => {
-    const products_ids =  JSON.stringify(req.body.items_ids)
-    const {price, payment, delivery} = req.body
-    const shipping_user_info = req.body.userInfo
-    console.log(products_ids)
-
-    const today = new Date();
+    const { price, payment, delivery, address_id, cart_products } = req.body
+    const userId = User.isLogged(req)
+    const today = new Date()
     const formattedDate = today.getFullYear() + '-' +
         String(today.getMonth() + 1).padStart(2, '0') + '-' +
         String(today.getDate()).padStart(2, '0');
 
-    let user_id = null
-    if(req.cookies['User']){
-        user_id = JSON.parse(req.cookies['User']).id
-    }
+    const price_to_pay = price > 200 ? (price - (20 / 100) * price).toFixed(2) : price
 
     const sql = `
         INSERT INTO 
@@ -188,52 +145,53 @@ router.post('/purchase/complete', (req, res) => {
                 \`Data_zakupu\`, \`Id_użytkownika\`, \`Przedmioty\`, \`Zapłacona_kwota\`, 
                 \`id_adresu\`,\`oceniona\`,\`Metoda dostawy\`,\`Metoda płatności\`
             ) 
-        VALUES ('${formattedDate}',${user_id},'${products_ids}',${price},${null}, ${0}, '${delivery}', '${payment}' )`
+        VALUES ('${formattedDate}',${userId},'${JSON.stringify(cart_products)}',${price_to_pay},${address_id}, ${0}, '${delivery}', '${payment}' )`
 
-    con.query(sql)
-        .then(result =>{
-            res.clearCookie('CartProducts')
-            res.json({orderId : result.insertId})
-        })
-        .catch(err => {
-            console.log(err)
-        })
+    con.executeQuery(sql, [], res, (result) => {
+        res.clearCookie('CartProducts')
+        res.json({orderId : result.insertId})
+    })
 })
 
 router.get('/purchase/success/:orderId', (req, res) => {
     const {orderId} = req.params
-    res.render('./cart/success.ejs', { categories: req.categories || null, numberOfItemsInCart : getCartItems(req).length, orderId})
+    View.renderView(req, res, './cart/success.ejs', {orderId, logged : req.user ? true : false})
 })
 
 
 
 router.post('/finalization', (req, res) => {
     const form_data = req.body
-    const sql = `
-        INSERT INTO Adresy (Telefon, Ulica, Województwo, \`Kod pocztowy\`, Miasto, \`E-mail\`, id_uzytkownika) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
+    console.log(form_data)
 
-    const values = [
-        form_data.Telefon,
-        form_data.Ulica,
-        form_data.Województwo,
-        form_data['Kod_pocztowy'],
-        form_data.Miasto,
-        form_data['Email'],
-        form_data.id_uzytkownika
-    ];
+    if(req.cookies['User']){
+        const queryString = new URLSearchParams(form_data).toString();
+        res.redirect(`/cart/purchase/finaliztion?${queryString}`)
 
-    con.query(sql,values)
-        .then(result => {
+    }else{
+        const sql = `
+            INSERT INTO Adresy (Telefon, Ulica, Województwo, \`Kod pocztowy\`, Miasto, \`E-mail\`, id_uzytkownika) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        const values = [
+            parseInt(form_data.Telefon),
+            form_data.Ulica,
+            form_data.Województwo,
+            form_data['Kod_pocztowy'],
+            form_data.Miasto,
+            form_data['Email'],
+            form_data.id_uzytkownika
+        ];
+
+        con.executeQuery(sql, values, res, (result) => {
+            form_data.address_id = result.insertId
             const queryString = new URLSearchParams(form_data).toString();
             res.redirect(`/cart/purchase/finaliztion?${queryString}`)
         })
-        .catch(err => {
-            console.log(err)
-            return
-        })
+    }   
+   
     
 })
 
-module.exports = router
+module.exports = router 

@@ -1,4 +1,5 @@
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const popUpShow = (id) => {
     const pop_up = document.getElementById(id)
     pop_up.style.visibility= 'visible'
@@ -19,10 +20,11 @@ async function isEmailValid(event) {
     const successForm = document.getElementById('success_div')
     const emailInput = document.getElementById('emailInput').value;
     const passwordInput= document.getElementById('passwordInput').value
+    const msg_span = document.getElementById('login_msg')
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailPattern.test(emailInput)) {
-        alert("Please enter a valid email address.");
+        msg_span.textContent = "Proszę wpisać poprawny adres e-mail"
         return false;
     }
 
@@ -47,6 +49,8 @@ async function isEmailValid(event) {
             setTimeout(() => {
                 window.location.href = '/user'
             },1500)
+        }else{
+            msg_span.textContent = "Twoje dane nie są prawidłowe"
         }
 
     }catch(err){
@@ -61,10 +65,17 @@ async function registration(event) {
     const emailInput = document.getElementById('emailInput').value;
     const passwordInput= document.getElementById('passwordInput').value
     const phoneInput = document.getElementById('phoneInput').value
+    const loginValue = document.getElementById('loginInput').value
+    const msg_span = document.getElementById('login_msg')
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d|.*[\W_]).{8,}$/;
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(emailInput)) {
-        alert("Please enter a valid email address.");
+        msg_span.textContent = "Proszę wpisać poprawny adres e-mail"
+        return false;
+    }
+
+    if (!passwordRegex.test(passwordInput)) {
+        msg_span.textContent = "Twoje hasło jest niezgodne z kryteriami"
         return false;
     }
 
@@ -78,11 +89,13 @@ async function registration(event) {
                 { 
                     email : emailInput,
                     password : passwordInput,
-                    phone : passwordInput
+                    phone : phoneInput,
+                    login : loginValue
                 }
             ),
         })
         const { no_result } = await response.json()
+        console.log(no_result)
 
         if(!no_result){
             formDiv.style.display = 'none'
@@ -90,6 +103,8 @@ async function registration(event) {
             setTimeout(() => {
                 window.location.reload()
             },1500)
+        }else{
+            msg_span.textContent = "Nie udało się utworzyć twojego konta, e-mail jest zajęty"
         }
 
     }catch(err){
@@ -108,9 +123,11 @@ async function addItemToCard(id){
         })
         
         const result = await response.json()
+        console.log(result)
         if(result.success){
             if(!result.found){
                 const cartBadge = document.getElementById('cartBadge')
+                console.log(cartBadge)
                 cartBadge.textContent = parseInt(cartBadge.textContent) + 1
             }
 
@@ -168,11 +185,12 @@ const selectedBook = (id) => {
     window.location.href = `/ksiazka/${id}`
 }
 
-async function orderCompletion(form_data, cartItems, price) {
+async function orderCompletion(form_data, cartItems, price, address_id) {
     const userInfo = JSON.parse(form_data)
-    const items_ids = JSON.parse(cartItems).map(item => {
-        return item.id
+    const cart_products = JSON.parse(cartItems).map(item => {
+        return { id: item.id, quantity: item.quantity };
     })
+
     try {
         const response = await fetch('http://localhost:5000/cart/purchase/complete', {
             method: 'POST',
@@ -183,8 +201,9 @@ async function orderCompletion(form_data, cartItems, price) {
                 {
                     delivery: userInfo['Metoda dostawy'],
                     payment: userInfo['Metoda płatności'],
-                    items_ids,
-                    price : parseFloat(price).toFixed(2)
+                    cart_products,
+                    price : parseFloat(price).toFixed(2),
+                    address_id
                 }
             ),
         })
@@ -328,3 +347,4 @@ const changeQuantity = async (book_id, value, spn) => {
     }
     
 }
+

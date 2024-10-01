@@ -9,7 +9,7 @@
     <div class="container">
       <%- include('../partials/cartSections') %>
       <div class="form-container my-4">
-          <form class=" row" action="/cart/finalization" method="POST">
+          <form class="row" action="/cart/finalization" method="POST" onsubmit="return cartCheck()">
             
             <!-- Sposób dostawy -->
             <div class="col-lg-12 bordered">
@@ -17,7 +17,7 @@
             </div>
             <div class="col-lg-3">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="Metoda dostawy" id="pickup" value="Odbiór osobisty">
+                <input class="form-check-input" required type="checkbox" name="Metoda dostawy" id="pickup" value="Odbiór osobisty">
                 <label class="form-check-label" for="pickup">Odbiór osobisty</label>
               </div>
             </div>
@@ -30,7 +30,7 @@
             <div class="col-lg-3">
 
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="Metoda płatności" id="onDelivery" value="Płatność przy odbiorze">
+                <input class="form-check-input" required  aria-required="true" type="checkbox" name="Metoda płatności" id="onDelivery" value="Płatność przy odbiorze">
                 <label class="form-check-label" for="onDelivery">Płatność przy odbiorze</label>
               </div>
 
@@ -41,51 +41,40 @@
             </div>
 
             <div class="col-lg-12 text-end">
-                <button class="btn btn-primary btn-lg" >Dodaj adres dostawy <i class="bi bi-house-add"></i></button>
+                <a class="btn btn-primary btn-lg" href="/user/address_form">Dodaj adres dostawy <i class="bi bi-house-add"></i></a>
             </div>
-
-            <div class="px-3">
-                <% addreses.forEach((address,idx) => { %>
-                    <div class="col-lg-3 p-3" style="border: 1px solid #ddd;">
-                          <div class="d-flex" style="justify-content: space-between;">
-                                <div class="d-flex start_center">
-                                      <div class="address_id">
-                                            <span><%= idx + 1 %></span>
-                                            
-                                      </div>
-                                      <span class="book-title">Domyślny</span>  
-                                </div>
-                               
-                                
-                              
-                                <div>
-                                    <button class="btn btn-outline-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                          <i class="bi bi-three-dots text-end"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Usuń</a></li>
-                                    <li><a class="dropdown-item" href="#">Zmień</a></li>
-                                    </ul>  
-                              </div>
-                              
-                          </div>
-                          <div class="d-flex flex-column text-start px-3 pt-2">
-                                <% Object.keys(address).forEach((key) => { %>
-                                      <% if(!key.includes('id')){ %>
-                                            <span> <%= address[key] %></span>
-                                      <%} %>
-                                <% }) %>
-                          </div>
-                          
-                    </div>
-              <%})%>
+            <input type="number"  aria-required="true" required name="address_id"  style="display: none;" id="address_id" value="0"/>
+            <div class="row">
+                <%if(addreses.length > 0){ %>
+                    <% addreses.forEach((address,idx) => { %>
+                        <%- include('../partials/address_card.ejs', {address, idx, pick: true, order: true, amount : addreses.length,no_default : false}) %>
+                    <%})%>
+              <%}else{ %>
+                    <span class="title">Brak adresów do wyświetlenia</span>
+              <% } %>
             </div>
+            <span id="login_msg" style="color: red; font-size: 16px" class="text-center my-3"></span>
             <button class="btn btn-success m-auto mt-4" style="width: 60%;">Przejdź dalej</button>
             
           </form>
+          
         </div>
     </div>
    
-      
+    <script>
+        function cartCheck(){
+            const msg = document.getElementById('login_msg')
+            const field = document.getElementById('address_id').value
+            
+
+
+            if(field !== "0"){
+                return true
+            }else{
+                msg.textContent = "Wybierz adres dostawy"
+                return false
+            }
+        }
+    </script>
     <%- include('../partials/bootstrap.ejs') %>
 </body>

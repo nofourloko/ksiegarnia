@@ -32,7 +32,9 @@
     </div>
 
   </div>
+
 </nav>
+
   <% if (categories !== null) { %>
     <div class="categories d-flex justify-content-center py-3 bg-light">
       <% categories.forEach((categorie) => { %>
@@ -51,19 +53,19 @@
           <div class="dropdown d-flex flex-column">
             <% categories.forEach((categorie) => { %>
               <div class="dropdown_categories">
-                <p class="mx-3 category-item text-muted">
+                <a class="mx-3 category-item text-muted" href="/products/1/Beletrystyka/">
                   <%= categorie.category %>
-                </p>
+                </a>
                 <p type="button" onclick="dropdown_subcategory('<%= categorie.id %>')"><i class="bi bi-journal-arrow-down"></i></p>
                 
               </div>
               <div class="dropdown_categories_extra" style="display: none;" id='sub_category_<%= categorie.id %>' >
                 <% categorie.subcategory.forEach((sub) => { %>
      
-                    <span class="sub-title">
+                    <a class="mx-3 my-2 category-item text-muted" href="/ksiazki/<%= sub.id %>/<%= categorie.category %>/<%= sub.tytul %>">
                       <i class="bi bi-book" ></i>
-                      <%= sub %>
-                    </span>
+                      <%= sub.tytul %>
+                    </a>
           
                   
                 <% }) %>
@@ -76,6 +78,7 @@
       </div>
     
     </div>
+    <span class="book-title text-center">Rabat -20% dla całego zamówienia powyzej 200zł</span>
   <% } %>
   <%- include('./pop_up_book.ejs') %>
 

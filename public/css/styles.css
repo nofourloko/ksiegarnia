@@ -78,11 +78,17 @@ h1{
   -webkit-background-clip: text; /* Gradient text effect */
   background-clip: text;/* Slight letter spacing for readability */
 }
-#star_clicked, .bookmarks_selected_book:hover {
+.address_card{
+  border: 1px solid #ddd;
+}
+#star_clicked, .bookmarks_selected_book:hover,.address_card:hover {
   transform: scale(1.02); 
   transition: 0.3s ease-in-out
 }
-
+.address_card:hover{
+  cursor: pointer;
+  border: 2px solid #007bff !important;
+}
 .bookmarks_selected_book:hover{
   cursor: pointer; 
   border-bottom:2px solid #007bff;
@@ -583,6 +589,9 @@ h1{
     translate: 10px;
     cursor: pointer;
   }
+  .container{
+    margin-bottom: 30px;
+  }
   .container,#fav_comments{
     animation: slide-in-top 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both  !important; 
   }
@@ -760,4 +769,9 @@ gap: 10px;
   justify-content: start;
   align-items: center;
   gap: 10px;
+}
+
+.gradient{
+  background-color: rgba(221, 221, 221, 1);
+background-image: linear-gradient(90deg,rgba(2, 117, 216, 1) 0%,  rgba(221, 221, 221, 1) 90% );
 }
