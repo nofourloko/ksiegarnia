@@ -1,110 +1,129 @@
-const express = require('express')
-const router = express.Router()
-const {books, categories} = require("../examples")
-const { con }  = require('../Controller/db_connection')
-const session = require('express-session')
-const sql = `SELECT * FROM Kategorie`;
-const sql2 = `SELECT * FROM Książki`;
+const express = require('express');
+const router = express.Router();
+const { con } = require('../Controller/db_connection');
+const StaticData = require('../Controller/staticData');
+const View = require('../Controller/View');
+const Cart = require("../Controller/cart");
 
-const purchase_stages = [
-    {
-        title : 'Koszyk'
-    },
-    {
-        title : 'Dostawa i płatność'
-    },
-    {
-        title : 'Finalizacja'
-    }
-]
-
-router.use(session({
-  secret: 'secret_key',
-  resave: false,
-  saveUninitialized: true
-}));
-
-router.use("/", async (req, res, next) => {
-    con.query(sql)
-        .then( categories => {
-            req.categories = categories
-            return con.query(sql2)      
-        })
-        .then(books => {
-            console.log(books)
-            req.books = books
-            next()
-        })
-        .catch((err) => {
-            console.log(err)
-            next()
-        })
-});
+function formatOpinionsDate(opinions) {
+    return opinions.map(item => {
+        const date = new Date(item.data_dodania);
+        item.data_dodania = date.toLocaleDateString('pl-PL', StaticData.getDateSettings());
+        return item;
+    });
+}
 
 router.get('/', (req, res) => {
-    res.render('./main/index.ejs', {books : req.books || [], categories: req.categories || []})
-})
+    View.renderView(req, res, './main/index.ejs', {req, text: 'Wszystkie dostępne ksiązki'})
+});
+
+router.get('/ksiazka/:id', (req, res) => {
+    const query1 = 'SELECT * FROM Książki WHERE id = ?'
+    const query2 = 'SELECT * FROM Opinie WHERE id_książki = ?'
+
+    con.executeQuery(query1, [req.params.id], res, ( selectedBook ) => {
+        con.executeQuery(query2, [req.params.id], res, ( opinions ) => {
+            const additionalData = {
+                opinions : formatOpinionsDate(opinions),
+                selectedBook: selectedBook[0],
+                req
+            }
+
+            View.renderView(req, res,'./bookPage/index.ejs', additionalData );
+        })
+    })
+});
+
+
+router.get('/products/:id/:category_title', (req, res) => {
+    const {category_title, id} = req.params
+    const filteredBooks = req.books.filter(item => item.Id_kategorii === parseInt(req.params.id));
+    req.books = filteredBooks
+
+    View.renderView(req, res, './main/index.ejs', { 
+        req, 
+        text : category_title, 
+        breadcrumbs :  [
+            {
+                href : '/',
+                title: 'Ksiązki'
+            },
+            {
+                href : `/products/${id}/${category_title}`,
+                title: category_title
+            }
+        ]
+       
+    });
+    
+});
+
 
 router.post('/newItem', (req, res) => {
-    const {bookAuthor} = req.body
-    const upadtedItems = [bookAuthor]
-    const previousItems = req.cookies['CartProducts']
+    const { book } = req.body;
+    const cart = new Cart(req)
+    const updatedItems = cart.updateCartItems(req, book, 'increase');
 
-    if (previousItems) {
-        const parsedItems = JSON.parse(previousItems);
-        upadtedItems.push(...parsedItems);
+    const info  = {
+        success: true, 
+        found: cart.getCartItems(req).some(item => item.id === book) 
     }
 
-    res.cookie('CartProducts', JSON.stringify(upadtedItems), { maxAge: 3600 * 1000 });
-    res.json({ success : true});
-})
-
+    cart.updateCartItemsCookie(res, updatedItems);
+    res.json(info);
+});
 
 router.post('/removeItem', (req, res) => {
-    const {bookAuthor} = req.body
-    const upadtedItems = JSON.parse(req.cookies['CartProducts']).filter(item => item !== bookAuthor)
+    const { id } = req.body;
+    const cart = new Cart(req)
+    console.log(id)
+    const updatedItems = cart.cartItems.filter(item => item.id !== id);
+    cart.updateCartItemsCookie(res, updatedItems);
+    res.json({ success: true });
+});
 
-    
-    res.cookie('CartProducts', JSON.stringify(upadtedItems), { maxAge: 3600 * 1000 });
-    res.json({ success : true});
+router.post('/changeItemQuantity', (req, res) => {
+    const cart = new Cart(req)
+    const updatedItems = cart.updateCartItems(req, req.body.id, 'updateQuantity');
+    cart.updateCartItemsCookie(res, updatedItems);
+    res.json({ success: true });
+});
+
+router.post('/search', (req, res) => {
+    const { searched_title } = req.body;
+    const filteredBooks = req.books.filter(item => item.Tytuł.toLowerCase().includes(searched_title.toLowerCase()));
+    req.books = filteredBooks
+    View.renderView(req, res, './main/index.ejs',{req, text : `Wyniki wyszukiwania dla '${searched_title}'`, breadcrumbs : [
+        {
+            href: '/',
+            title: 'Ksiązki'
+        },
+        {
+            href: ``,
+            title: ``
+        },
+    ]});
+});
+
+router.get('/ksiazki/:id/:category/:subcategory', (req, res) => {
+    const { id, category, subcategory } = req.params
+    const filteredBooks = req.books.filter(item => item.Id_podkategorii === parseInt(id));
+    console.log(filteredBooks)
+    req.books = filteredBooks
+    View.renderView(req, res, './main/index.ejs',{req, text : subcategory , breadcrumbs : [
+        {
+            href: '/',
+            title: 'Ksiązki'
+        },
+        {
+            href: `/products/${filteredBooks[0].Id_kategorii}/${category}`,
+            title: category
+        },
+        {
+            href: `/products/${id}/${category}/${subcategory}`,
+            title: subcategory
+        }
+    ]} )
 })
 
-router.get('/cart', (req, res) => {
-    const cartItems =  JSON.parse(req.cookies['CartProducts']) || []
-    let price = 0
-    cartItems.forEach((element, idx )=> {
-        const found_item = req.books.find(item => item.id === parseInt(element))
-        cartItems[idx] = found_item
-        price += found_item.Cena
-    });
-
-    console.log(cartItems)
-
-    res.render('./cart/index.ejs', { cartItems : cartItems, categories: null, purchase_stages, current : [ 'Koszyk' ], price})
-})
-
-router.get('/cart/purchase', (req, res) => {
-    res.render('./cart/shipping.ejs', { categories: null, purchase_stages, current : [ 'Koszyk' ,'Dostawa i płatność' ] })
-})
-
-router.get('/cart/purchase/no-regestration', (req, res) => {
-    res.render('./cart/shipping-no-registration.ejs', { categories: null, purchase_stages, current : [ 'Koszyk' ,'Dostawa i płatność' ] })
-})
-
-router.get('/cart/purchase/finaliztion', (req, res) => {
-    const cartItems =  JSON.parse(req.cookies['CartProducts']) || []
-    const form_data = req.session.form_data || {};
-
-    cartItems.forEach((element, idx )=> {
-        const found_item = req.books.find(item => item.id === parseInt(element))
-        cartItems[idx] = found_item
-    });
-    res.render('./cart/finalization.ejs', { categories: null, cartItems, purchase_stages, current : [ 'Koszyk' ,'Dostawa i płatność', "Finalizacja" ] , form_data})
-})
-
-router.post('/cart/finalization', (req, res) => {
-    const form_data = req.body
-    req.session.form_data = form_data;
-    res.redirect('/cart/purchase/finaliztion')
-})
 module.exports = router

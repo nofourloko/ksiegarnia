@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head.ejs') %>
+    <style>
+        h1 {
+            font-size: 45px;
+            color: #ff0000;
+        }
+        
+        p {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            font-size: 18px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        .not_found_err{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div class="m-auto not_found_err">
+        <h1>404 - Nie znaleziono strony</h1>
+        <p>Przepraszamy strona, której szukasz nie istnieje.</p>
+        <a href="/">Powrót do strony głownej</a>
+    </div>
+    
+</body>
+</html>

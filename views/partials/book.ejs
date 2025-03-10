@@ -1,0 +1,15 @@
+<div class="col-lg-3 mb-4">
+    <div class="book_card" >
+        <img src="/book.jpg" alt="<%= book.Tytuł %>" class="book-image" onclick="selectedBook('<%= book.id %>')"/>
+        <div class="book-details text-center">
+            <h2 class="book-title"><%= book.Tytuł %></h2>
+            <p class="book-author-main"><%= book.Autor %></p>
+            <p><%= book.Cena %> zł</p>
+            <button 
+              class="btn btn-outline-success" 
+              onclick="addItemToCard('<%= book.id %>')">
+                Dodaj do koszyka
+            </button>
+        </div>
+    </div>
+</div>

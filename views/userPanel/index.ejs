@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../partials/nav.ejs') %>
+      <%- include('../partials/bootstrap.ejs') %>
+      <div class="container">
+        <div class="row mt-5">
+            <%- include('../partials/navigation.ejs')%>
+            <div class="col-lg-5 m-5 text-center">
+                   <h1>Witaj</h1>
+                   <span>Miło cię widzieć <i class="bi bi-person-check" style="color:green"></i></span>
+         
+            </div>
+            <div class="col-lg-5 m-5 text-center">
+                <h1><%= orders %></h1>
+                <span>Zrealizowanych zamówień</span>
+                
+            </div>
+            <div class="col-lg-4 mt-3">
+                <div class="account-sections">
+                    <i class="bi bi-lock" id="icon_account"></i>
+                    <div>
+                        <h1 class="account-section-title">Konto i dostawa</h1>
+                        <a href="/user/myinfo">Twoje dane</a>
+                        <a href="/user/account/adress"><span>Adresy do wysyłki i faktury</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mt-3">
+                <div class="account-sections">
+                    <i class="bi bi-arrow-counterclockwise"  id="icon_account"></i>
+                    <div>
+                        <h1 class="book-title">Historia transakcji</h1>
+                        <a href="/user/orders"><span>Zamówienia</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mt-3">
+                <div class="account-sections">
+                    <i class="bi bi-heart"  id="icon_account"></i>
+                    <div>
+                        <h1 class="book-title">Ulubione</h1>
+                        <a href="/user/favourites">Lista</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <a class="btn btn-danger log-out" href="/user/logout/clear">Wyloguj się</a>
+      <%- include('../partials/bootstrap.ejs') %>
+</body>
+</html>

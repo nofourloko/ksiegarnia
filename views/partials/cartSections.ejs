@@ -2,10 +2,12 @@
     <div class="cart-stages d-flex justify-content-between align-items-center">
         <% purchase_stages.forEach(function(stage){ %>
             <div class="cart-stage-item text-center">
-                <span class="stage-title"><%- stage.title %></span>
+                
                 <% if(current.includes(stage.title)){ %>
+                    <a href=""><span class="stage-title"><%- stage.title %></span></a>
                     <div class="stage-circle active-stage"></div>
                 <% }else { %>
+                    <span class="stage-title"><%- stage.title %></span>
                     <div class="stage-circle"></div>
                 <% } %>
             </div>
@@ -50,17 +52,6 @@
         border-color: #28a745;
     }
 
-    .cart-stage-item::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateY(-50%);
-        width: 100px;
-        height: 2px;
-        background-color: #ddd;
-        z-index: -1;
-    }
 
     .cart-stage-item:first-child::before {
         display: none; /* Remove line before the first stage */

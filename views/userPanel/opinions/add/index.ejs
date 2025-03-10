@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../../../partials/nav.ejs') %>
+      <div class="container">
+        <div class="row bordered">
+          <div class="col-lg-12">
+            <h1><strong><i class="bi bi-chat-quote" style="color:#0275d8"></i> Recenzje</strong></h1>
+          </div>
+      </div>
+        <div class="row ">
+          <a  class="col-lg-2 m-2 btn btn-outline-secondary" href="/user/account/view_opinions">Twoje recenzje</a>
+          <a class="col-lg-2 m-2 btn  btn-secondary" href="/user/account/add_opinions" >Niezrcenzowane</a>
+        </div>
+        <% orders_to_review.forEach(item => { %>
+          <div class="row mt-5">
+            <div class="col-lg-2" style="margin-right: 50px;">
+              <img src="/book.jpg" class="book-image"/>
+            </div>
+            <div class="col-lg-9  ml-5">
+              <h1 class="book-title"><%= item.Tytuł %></h1>
+              <div class="book-meta mb-3">
+                <span class="book-autor">Autor: <%= item.Autor %> </span>
+              </div>
+              <span>Oceń:</span>
+              <% [1,2,3,4,5].forEach(el => { %>
+                <i class="bi bi-star rate_options" onclick="selectRate('<%= el %>')" ></i>
+                <%})%>
+              <form action="/user/review/add" method="post" onsubmit="return addComment(event, '<%= item.id %>')">
+                <div class="form-group mt-3">
+                  <textarea class="form-control" id="exampleFormControlTextarea1" name="review_text" rows="4" placeholder="Wpisz tekst recenzji" required></textarea>
+                </div>
+                <div class="form-check mt-2">
+                  <input type="checkbox" class="form-check-input" id="exampleCheck1" name="rules_aceptation" required>
+                  <label class="form-check-label" for="exampleCheck1" >Akceptuje regulamin opinii i recenzji</label>
+                </div>
+                <div class="text-end"> 
+                  <button class="btn btn-outline-success mt-2 text-end">Publikuj</button>
+                </div>
+              </form>
+              
+            </div>
+          </div>
+        <% }) %>
+       
+      </div>
+      <%- include('../../../partials/bootstrap.ejs') %>
+</body>
+</html>

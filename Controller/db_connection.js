@@ -11,10 +11,11 @@ class DBhandler {
           });
     }
 
-    query(sql_query){
+    query(sql_query, values = []){
         return new Promise((resolve, reject) => {
-            this.connection.query(sql_query, (err, result) => {
+            this.connection.query(sql_query, values, (err, result) => {
                 if(err){
+                    console.log(err)
                     throw reject(err)
                 }
                 resolve(result)
@@ -22,6 +23,15 @@ class DBhandler {
         })
 
     }
+
+    executeQuery = (query, params = [], res, onSuccess) => {
+        this.query(query, params)
+            .then(result => onSuccess(result))
+            .catch(err => {
+                console.log(err);
+                res.render('./error.ejs', {message : 'Wystąpił błąd podczas przetwarzania twojego zapytania w bazie danych'})
+            });
+    };
 }
 
 const con = new DBhandler("localhost", "root", "", "Library")

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../../partials/nav.ejs') %>
+      <%- include('../../partials/bootstrap.ejs') %>
+      <div class="container">
+        <div class="row bordered mt-5">
+            <%- include('../../partials/navigation.ejs')%>
+            <div class="col-lg-12">
+                <h1><strong><i class="bi bi-basket" style="color:#0275d8"></i> Moje zakupy</strong></h1>
+            </div>
+        </div>
+        <%  all_orders.forEach(item => { %>
+                <div class="row mt-3" style="border:1px solid #ddd">
+                    <div class="col-12 p-3 gradient" >
+                        <h1 class="book-title text-white" ><strong>Zamówienie z dnia </strong><%= item.Data_zakupu %><strong> nr <%= item.id %></strong>  </h1>
+                    </div>
+                    <div class="col-lg-9" style="border-right:1px solid #ddd;">
+                        <div class="d-flex p-3" style="justify-content: space-between; border-bottom:1px solid #ddd;">
+                            <span>Zakupione produkty</span>
+                            <div class="d-flex" style="gap: 70px;">
+                                <span> Ilość </span>
+                                <span> Wartość </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 d-flex flex-column p-3">
+                        <a class="btn btn-primary" href="/user/orders/<%= item.id %>">Szczegóły</a>
+                    </div>
+         
+                        <% item.Przedmioty.forEach(el => { %>
+                        <div class="col-lg-9 px-4" style="border-right: 1px solid #ddd;">
+                        <div class="d-flex " style="justify-content: space-between; border-bottom:1px solid #ddd">
+                            <div style="width: 50%;" class="d-flex">
+                              <div style="width: 200px;">
+                              <img src="/book.jpg" class="book-image" style="border: none;"/>  
+                              
+                            </div>
+                            <div class="py-5">
+                                <h1 class="book-title"><%= el.Tytuł %></h1>
+                                <div class="book-meta">
+                                    <span style="border-bottom: 1px solid #ddd;" class="my-2 pb-2"><%= el.Autor %></span>
+                                    <a href="user/account/add_opinions">Dodaj recenzje</a>
+                                </div>
+                               
+                            </div>  
+                            </div>
+                            
+                            
+                            
+                                
+                                <div class="d-flex pt-5" style="gap: 70px;">
+                                    <span><b><%= el.quantity %> szt</b> </span>
+                                    <span><b><%= el.Cena %>zł</b>  </span>
+                                </div>
+                           
+                        </div>
+                    </div>
+                        <%})%>
+                    <div class="col-lg-3 d-flex " style="align-items:end;">
+                        <div class="d-flex p-3" style="border-top:1px solid #ddd;justify-content: space-between; width:100%">
+                            <span class="book-title">Razem zapłacono:</span>
+                            <span class="book-title"><%= item.Zapłacona_kwota %> zł</span>
+                        </div>
+                        
+                    </div>
+                </div>
+
+        <%})%>
+
+      </div>
+      <%- include('../../partials/bootstrap.ejs') %>
+</body>
+</html>

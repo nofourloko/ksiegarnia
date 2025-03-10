@@ -6,68 +6,41 @@
  </head>
  <body> 
     <%- include('../partials/nav.ejs') %>
-    <%- include('../partials/cartSections') %>
-    <div class="form-container mt-4">
-        <form class=" row" action="/cart/finalization" method="POST">
-          
-          <!-- Sposób dostawy -->
-          <div class="col-lg-12 bordered">
-            <span class="heading-text">Sposób dostawy</span>
-          </div>
-          <div class="col-lg-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="deliveryMethod" id="pickup" value="pickup">
-              <label class="form-check-label" for="pickup">Odbiór osobisty</label>
+    <div class="container">
+      <%- include('../partials/cartSections') %>
+      <div class="form-container mt-4">
+          <form class=" row" action="/cart/finalization" method="POST">
+            
+            <!-- Sposób dostawy -->
+            <div class="col-lg-12 bordered">
+              <span class="heading-text">Sposób dostawy</span>
             </div>
-          </div>
-    
-          <!-- Sposób płatności -->
-          <div class="col-lg-12 bordered">
-            <span class="heading-text">Sposób płatności</span>
-          </div>
-          <div class="col-lg-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="paymentMethod" id="onDelivery" value="onDelivery">
-              <label class="form-check-label" for="onDelivery">Płatność przy odbiorze</label>
+            <div class="col-lg-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="Metoda dostawy" id="pickup" value="Odbiór osobisty">
+                <label class="form-check-label" for="pickup">Odbiór osobisty</label>
+              </div>
             </div>
-          </div>
-    
-          <!-- Dane do wysyłki -->
-          <div class="col-lg-12 bordered">
-            <span class="heading-text">Dane do wysyłki</span>
-          </div>
-          <div class="col-lg-6 mt-4">
-            <label for="emailInput">Email</label>
-            <input type="email" class="form-control" id="emailInput" name="email" placeholder="Email" required>
-          </div>
-          <div class="col-lg-6 mt-4">
-            <label for="addressInput">Adres</label>
-            <input type="text" class="form-control" id="addressInput" name="address" placeholder="1234 Main St" required>
-          </div>
-          <div class="col-lg-6 mt-4">
-            <label for="cityInput">Miasto</label>
-            <input type="text" class="form-control" id="cityInput" name="city" required>
-          </div>
-          <div class="col-lg-3 mt-4">
-            <label for="stateSelect">Województwo</label>
-            <select id="stateSelect" class="form-control" name="state" required>
-              <option selected disabled>Wybierz...</option>
-              <option value="state1">Województwo 1</option>
-              <option value="state2">Województwo 2</option>
-            </select>
-          </div>
-          <div class="col-lg-3 mt-4">
-            <label for="zipInput">Kod pocztowy</label>
-            <input type="text" class="form-control" id="zipInput" name="zip" required>
-          </div>
-    
-          <!-- Submit Button -->
-          <div class="col-lg-3 mt-4">
-            <button class="btn btn-danger" type="submit">Zatwierdź</button>
-          </div>
-          
-        </form>
-      </div>
+      
+            <!-- Sposób płatności -->
+            <div class="col-lg-12 bordered">
+              <span class="heading-text">Sposób płatności</span>
+            </div>
+            <div class="col-lg-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="Metoda płatności" id="onDelivery" value="Płatność przy odbiorze">
+                <label class="form-check-label" for="onDelivery">Płatność przy odbiorze</label>
+              </div>
+            </div>
+            <div class="col-lg-12 bordered">
+              <span class="heading-text">Dane do wysyłki</span>
+            </div>
+            <%- include('../partials/addressForm.ejs', {no_default : true}) %>
+            
+          </form>
+        </div>
+    </div>
+   
       
     <%- include('../partials/bootstrap.ejs') %>
 </body>

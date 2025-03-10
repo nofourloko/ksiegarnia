@@ -2,9 +2,6 @@
 <html lang="en">
 <head>
   <%- include('../partials/head.ejs') %>
-  <style>
-   
-  </style>
 </head>
 <body> 
   <%- include('../partials/nav.ejs') %>
@@ -19,6 +16,14 @@
             <div class="details">
               <span class="title"><%= book.Tytuł %></span>
               <div class="author">Autor: <%= book.Autor %></div>
+            </div>
+            <div class="d-flex flex-column text-center" style="margin-right: 100px;">
+              <span class="author">Ilość:</span>
+                <span><%= book.quantity %></span>
+            </div>
+            <div class="d-flex flex-column text-center">
+              <span class="author">Cena:</span>
+              <span><%= book.Cena %></span>
             </div>
           </div>
         <% }) %>
@@ -35,7 +40,15 @@
             <span class="value"><%= form_data[key] %></span>
           </div>
         <% }) %>
-        <button class="btn btn-success text-center">Zamów</button>
+        <div class="form-data text-end bordered ">
+          <% if(price > 200){ %>
+          <span class="heading-text">Kwota do zapłaty: <%= (price - (20 / 100) * price).toFixed(2)  %>zł</span>
+          <%}else{ %>
+            <span class="heading-text">Kwota do zapłaty: price zł</span>
+            <%}%>
+         
+        </div>
+        <button class="btn btn-success text-center mb-3" onclick="orderCompletion('<%= JSON.stringify(form_data) %>', '<%= JSON.stringify(cartItems) %>','<%= price %>', '<%= address_id %>')">Zamów</button>
       </div>
     </div>
   </div>

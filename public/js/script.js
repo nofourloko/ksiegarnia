@@ -1,24 +1,30 @@
 
-const popUpShow = (error) => {
-    const pop_up = document.getElementById(error ?'pop_up_error' :'pop_up')
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const popUpShow = (id) => {
+    const pop_up = document.getElementById(id)
     pop_up.style.visibility= 'visible'
     pop_up.classList.remove('slide-out-bottom')
     pop_up.classList.add('slide-in-bottom')
+    document.body.style.pointerEvents = 'none';
+
     setTimeout(() => {
         pop_up.classList.remove('slide-in-bottom')
         pop_up.classList.add('slide-out-bottom')
+        document.body.style.pointerEvents = 'auto';
     },2000)
 }
 
 async function isEmailValid(event) {
     event.preventDefault();
+    const formDiv = document.getElementById('form_email')
+    const successForm = document.getElementById('success_div')
     const emailInput = document.getElementById('emailInput').value;
-    const emailField = document.getElementById('email_field');
-    const passwordField = document.getElementById('password_field');
+    const passwordInput= document.getElementById('passwordInput').value
+    const msg_span = document.getElementById('login_msg')
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailPattern.test(emailInput)) {
-        alert("Please enter a valid email address.");
+        msg_span.textContent = "Proszę wpisać poprawny adres e-mail"
         return false;
     }
 
@@ -28,15 +34,23 @@ async function isEmailValid(event) {
             headers: {
                 "Content-Type": "application/json",
               },
-            body: JSON.stringify({ email : emailInput}),
+            body: JSON.stringify(
+                { 
+                    email : emailInput,
+                    password : passwordInput 
+                }
+            ),
         })
-
         const { no_result } = await response.json()
-        console.log(no_result)
-        if(!no_result){
 
-            emailField.style.display = 'none';
-            passwordField.style.display = 'block'
+        if(!no_result){
+            formDiv.style.display = 'none'
+            successForm.style.display = 'block'
+            setTimeout(() => {
+                window.location.href = '/user'
+            },1500)
+        }else{
+            msg_span.textContent = "Twoje dane nie są prawidłowe"
         }
 
     }catch(err){
@@ -44,37 +58,105 @@ async function isEmailValid(event) {
     }
 }
 
-async function addItemToCard(book){
+async function registration(event) {
+    event.preventDefault();
+    const formDiv = document.getElementById('form_email')
+    const successForm = document.getElementById('success_div')
+    const emailInput = document.getElementById('emailInput').value;
+    const passwordInput= document.getElementById('passwordInput').value
+    const phoneInput = document.getElementById('phoneInput').value
+    const loginValue = document.getElementById('loginInput').value
+    const msg_span = document.getElementById('login_msg')
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d|.*[\W_]).{8,}$/;
+
+    if (!emailPattern.test(emailInput)) {
+        msg_span.textContent = "Proszę wpisać poprawny adres e-mail"
+        return false;
+    }
+
+    if (!passwordRegex.test(passwordInput)) {
+        msg_span.textContent = "Twoje hasło jest niezgodne z kryteriami"
+        return false;
+    }
+
+    try{
+        const response = await fetch('http://localhost:5000/auth/registerUser', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+              },
+            body: JSON.stringify(
+                { 
+                    email : emailInput,
+                    password : passwordInput,
+                    phone : phoneInput,
+                    login : loginValue
+                }
+            ),
+        })
+        const { no_result } = await response.json()
+        console.log(no_result)
+
+        if(!no_result){
+            formDiv.style.display = 'none'
+            successForm.style.display = 'block'
+            setTimeout(() => {
+                window.location.reload()
+            },1500)
+        }else{
+            msg_span.textContent = "Nie udało się utworzyć twojego konta, e-mail jest zajęty"
+        }
+
+    }catch(err){
+        console.log(err)
+    }
+}
+
+async function addItemToCard(id){
     try{
         const response = await fetch('http://localhost:5000/newItem', {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
               },
-            body: JSON.stringify({ bookAuthor : book}),
+            body: JSON.stringify({ book : id}),
         })
         
         const result = await response.json()
+        console.log(result)
         if(result.success){
-            popUpShow(false)
+            if(!result.found){
+                const cartBadge = document.getElementById('cartBadge')
+                console.log(cartBadge)
+                cartBadge.textContent = parseInt(cartBadge.textContent) + 1
+            }
+
+            if(window.location.href.split("/")[3] === "cart"){
+                window.location.reload()
+            }else{
+                popUpShow('pop_up')
+            }
+            
         }
         
 
     }catch(err){
         console.log(err)
-        popUpShow(true)
+        popUpShow('pop_up_error')
     }
  
 }
 
-const removeFromCart = async (title) => {
+
+
+const removeFromCart = async (id) => {
     try{
         const response = await fetch('http://localhost:5000/removeItem', {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
               },
-            body: JSON.stringify({ bookAuthor : title}),
+            body: JSON.stringify({id : id}),
         })
     
         const result = await response.json()
@@ -89,9 +171,180 @@ const removeFromCart = async (title) => {
 }
 
 
-
+async function selectCategory(title, id) {
+    console.log(category)
+    window.location.href = `/${title}/${id}`
+}
 
 const dropdown_subcategory = (subcategory) => {
     const element = document.getElementById(`sub_category_${subcategory}`)
-    element.style.opacity = 1
+    element.style.display = 'flex'
 }
+
+const selectedBook = (id) => {
+    window.location.href = `/ksiazka/${id}`
+}
+
+async function orderCompletion(form_data, cartItems, price, address_id) {
+    const userInfo = JSON.parse(form_data)
+    const cart_products = JSON.parse(cartItems).map(item => {
+        return { id: item.id, quantity: item.quantity };
+    })
+
+    try {
+        const response = await fetch('http://localhost:5000/cart/purchase/complete', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+              },
+            body: JSON.stringify(
+                {
+                    delivery: userInfo['Metoda dostawy'],
+                    payment: userInfo['Metoda płatności'],
+                    cart_products,
+                    price : parseFloat(price).toFixed(2),
+                    address_id
+                }
+            ),
+        })
+        const {orderId} = await response.json()
+        window.location.href = `/cart/purchase/success/${orderId}`
+    } catch (error) {
+        console.log(error)
+        return
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const bookmarks = document.querySelectorAll('.bookmarks_selected_book');
+    const contentSections = {
+        bookmark_opis: document.getElementById('content_opis'),
+        bookmark_opinie: document.getElementById('content_opinie'),
+        bookmark_dostepnosc: document.getElementById('content_dostepnosc'),
+        bookmark_szczegoly: document.getElementById('content_szczegoly')
+    };
+
+    function showSection(sectionId) {
+        Object.values(contentSections).forEach(section => {
+            section.style.display = 'none'; 
+        });
+        contentSections[sectionId].style.display = 'block'; 
+    }
+
+
+    bookmarks.forEach(bookmark => {
+        bookmark.addEventListener('click', function () {
+            const sectionId = this.id;
+            showSection(sectionId);
+        });
+    });
+
+    showSection('bookmark_opis');
+});
+
+
+const selectRate = (rate) => {
+    const all_rates = document.querySelectorAll('.rate_options')
+    all_rates.forEach((option, index) =>{
+        
+        if(index < rate){
+             option.style.color = '#e8b923'
+             option.setAttribute('id', 'star_clicked')
+        }else{
+            option.style.color = 'black'
+        }
+    })
+    localStorage.setItem('rate', rate)
+}
+
+const addComment = async (e, id) => {
+    e.preventDefault()
+    const rate = localStorage.getItem('rate')
+    if(!rate){
+        return false
+    }
+    console.log(rate)
+    try {
+        const response = await fetch('http://localhost:5000/user/review/add', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+              },
+            body: JSON.stringify(
+                {
+                   id, 
+                   review_text : e.target[0].value,
+                   rate: rate
+                }
+            ),
+        })
+        const { success } = await response.json()
+        if(success){
+            window.location.reload() 
+        }
+
+    } catch (error) {
+        console.log(error)
+        return
+    }
+}
+
+const showComment = (id) => {
+    const element = document.getElementById(id)
+    if(element.style.display === 'none'){
+        element.style.display = 'block'
+    }else{
+        element.style.display = 'none'
+    }
+
+}
+
+const add_favourite = async (book_id) => {
+    try {
+        const response = await fetch(`http://localhost:5000/user/add_favourite/${book_id}`, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+              },
+        })
+
+        const { success } = await response.json()
+
+        if(success){
+            popUpShow('pop_up_bookmarks')
+        }
+
+    } catch (error) {
+        console.log(error)
+        return
+    }
+}
+
+const changeQuantity = async (book_id, value, spn) => {
+    const span = document.getElementById(spn)
+    const new_quantity = parseInt(span.textContent) + value
+    const url = new_quantity === 0 ? 'removeItem' : 'changeItemQuantity'
+
+    try {
+        const response = await fetch(`http://localhost:5000/${url}`, {
+                method: 'POST',
+                body : JSON.stringify({id : book_id, value : new_quantity}),
+                headers: {
+                    "Content-Type": "application/json",
+                  },
+            })
+    
+        const { success } = await response.json()
+        
+        if(success){
+            window.location.reload()
+            
+        }
+    
+    } catch (error) {
+        console.log(error)
+        return
+    }
+    
+}
+

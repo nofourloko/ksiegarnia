@@ -1,0 +1,80 @@
+ 
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <%- include('../partials/head.ejs') %>
+ </head>
+ <body> 
+    <%- include('../partials/nav.ejs') %>
+    <div class="container">
+      <%- include('../partials/cartSections') %>
+      <div class="form-container my-4">
+          <form class="row" action="/cart/finalization" method="POST" onsubmit="return cartCheck()">
+            
+            <!-- Sposób dostawy -->
+            <div class="col-lg-12 bordered">
+              <span class="heading-text">Sposób dostawy</span>
+            </div>
+            <div class="col-lg-3">
+              <div class="form-check">
+                <input class="form-check-input" required type="checkbox" name="Metoda dostawy" id="pickup" value="Odbiór osobisty">
+                <label class="form-check-label" for="pickup">Odbiór osobisty</label>
+              </div>
+            </div>
+      
+            <!-- Sposób płatności -->
+            <div class="col-lg-12 bordered">
+              <span class="heading-text">Sposób płatności</span>
+            </div>
+
+            <div class="col-lg-3">
+
+              <div class="form-check">
+                <input class="form-check-input" required  aria-required="true" type="checkbox" name="Metoda płatności" id="onDelivery" value="Płatność przy odbiorze">
+                <label class="form-check-label" for="onDelivery">Płatność przy odbiorze</label>
+              </div>
+
+            </div>
+
+            <div class="col-lg-12 bordered">
+              <span class="heading-text">Dane do wysyłki</span>
+            </div>
+
+            <div class="col-lg-12 text-end">
+                <a class="btn btn-primary btn-lg" href="/user/address_form">Dodaj adres dostawy <i class="bi bi-house-add"></i></a>
+            </div>
+            <input type="number"  aria-required="true" required name="address_id"  style="display: none;" id="address_id" value="0"/>
+            <div class="row">
+                <%if(addreses.length > 0){ %>
+                    <% addreses.forEach((address,idx) => { %>
+                        <%- include('../partials/address_card.ejs', {address, idx, pick: true, order: true, amount : addreses.length,no_default : false}) %>
+                    <%})%>
+              <%}else{ %>
+                    <span class="title">Brak adresów do wyświetlenia</span>
+              <% } %>
+            </div>
+            <span id="login_msg" style="color: red; font-size: 16px" class="text-center my-3"></span>
+            <button class="btn btn-success m-auto mt-4" style="width: 60%;">Przejdź dalej</button>
+            
+          </form>
+          
+        </div>
+    </div>
+   
+    <script>
+        function cartCheck(){
+            const msg = document.getElementById('login_msg')
+            const field = document.getElementById('address_id').value
+            
+
+
+            if(field !== "0"){
+                return true
+            }else{
+                msg.textContent = "Wybierz adres dostawy"
+                return false
+            }
+        }
+    </script>
+    <%- include('../partials/bootstrap.ejs') %>
+</body>

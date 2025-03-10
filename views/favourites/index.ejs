@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../partials/nav.ejs') %>
+      <div class="container">
+        <div class="row mt-5">
+            <%- include('../partials/navigation.ejs')%>
+          <h1 class="col-lg-11  mb-3"><i class="bi bi-bookmark-heart"></i> Ulubione</h1>
+         </div>
+         <% if(favourites.length > 0) { %>
+            <% favourites.forEach(fav => { %>
+            <div class="row mb-3" style="border:1px solid #ddd;">
+                <div class="col-lg-3" >
+                    <img src="/book.jpg"  class="book-image" style="border: none;"/>
+                </div>
+                <div class="col-lg-5 pt-5 px-4" style="border-left:1px solid #ddd;">
+                    <h1 class="book-title"> <%= fav.Tytuł %></h1>
+                    <span class="book-autor"> <%= fav.Autor %></span>
+                    <div class="mb-2 mt-2">
+                        <% [1,2,3,4,5].forEach(el => { %>
+                            <i class="bi bi-star"></i>
+                        <% }) %>
+                    </div>
+                    <h1 class="book-title"><%= fav.Cena %> zł</h1>
+                    <% if(fav.komentarz){ %>
+                    <div class="mt-4 fav_comment">
+                        <div class="bg-primary text-white">
+                        </div>
+                        <span> <%= fav.komentarz %></span>
+                    </div>
+                    <%} %>
+                </div>
+                <div class="col-3 pt-5">
+                    <button class="btn btn-success" style="width: 100%;" onclick="addItemToCard('<%= fav.id_ksiazki %>')">Dodaj do koszyka <i class="bi bi-bag-check-fill"></i></button>
+                    <div class="d-flex" >
+                        <button class="btn btn-outline-dark bt-action"  onclick="showComment('fav_comments')"> <i class="bi bi-chat"></i></button>
+                        <form action='/user/favourites/remove/<%= fav.id %>' method="post" class="bt-action">
+                            <button class="btn btn-outline-dark" style="width: 100%;"> <i class="bi bi-x-lg"></i></button>   
+                        </form>
+                    </div>
+
+                    
+                    <form class="form-group text-end" style="display: none;" id="fav_comments" action="/user/favourites/add_comment" method="post">
+                        <input type="text" value='<%= fav.id %>' style="display:none" name="id">
+                        <textarea 
+                            class="form-control" 
+                            name="comment_text" 
+                            rows="3" 
+                            placeholder="Wpisz treść komentarza" 
+                            required
+                        
+                            ><%= fav.komentarz %></textarea>
+                        <button class="btn btn-primary mt-2">Zapisz</button>
+                    </form>
+                </div>
+            </div>
+         <%}) }else { %>
+            <h1 class="book-title m-5"> Twoja lista jest pusta. Dodaj pierwszy produkt. </h1>
+        <% } %>
+         
+      </div>
+
+      <%- include('../partials/pop_up_book.ejs') %>
+      <%- include('../partials/bootstrap.ejs') %>
+
+</body>
+</html>
+
+<style>
+    .bt-action{
+        margin: 10px auto 10px auto;
+        width: 48.5%;
+    }
+    .fav_comment{
+        max-width: 60%;
+        padding-bottom: 10px;
+        border: 1px solid #ddd;
+    }
+    .fav_comment > span{
+        padding: 10px;
+        margin-left: 10px;
+    }
+    .fav_comment > div{
+        margin-bottom: 10px;
+        padding: 5px;
+        border: 1px solid inherit;
+    }
+</style>

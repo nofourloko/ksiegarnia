@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head.ejs') %>
+</head>
+<body> 
+      <%- include('../../partials/nav.ejs') %>
+      
+      <div class="container">
+            <div class="row bordered mt-5">
+                  <%- include('../../partials/navigation.ejs')%>
+                  <div class="col-lg-9">
+                      <h1><strong><i class="bi bi-house-check" style="color:#0275d8"></i>Moje adresy</strong></h1>
+                  </div>
+                  <div class="col-lg-3 text-end">
+                        <a class="btn btn-primary btn-lg"  href="/user/address_form">Dodaj adres dostawy <i class="bi bi-house-add"></i></a>
+                  </div>
+              </div>
+              <div class="row p-5">
+                  <%if(addreses.length > 0){ %>
+                        <% addreses.forEach((address,idx) => { %>
+                              <%- include('../../partials/address_card.ejs', {address, idx, order: false}) %>
+                        <%})%>
+                  <%}else{ %>
+                        <span class="title">Brak adresów do wyświetlenia</span>
+                  <% } %>
+              </div>
+              
+      </div>
+      
+      <%- include('../../partials/bootstrap.ejs') %>
+</body>
+</html>
