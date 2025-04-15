@@ -340,6 +340,8 @@ router.get('/orders/:id', (req, res) => {
     })
 })
 
+
+
 router.get('/myinfo', (req, res) => {
     const sql = 'SELECT * FROM Uzytkownicy WHERE id = ?'
     con.executeQuery(sql, [req.user], res, (result) => {
@@ -408,4 +410,4 @@ router.post('/password_change', (req, res) => {
 
 })
 
-module.exports = router
+module.exports = { router, ordersAdjust }

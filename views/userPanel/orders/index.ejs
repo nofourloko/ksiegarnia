@@ -29,6 +29,7 @@
                     </div>
                     <div class="col-lg-3 d-flex flex-column p-3">
                         <a class="btn btn-primary" href="/user/orders/<%= item.id %>">Szczegóły</a>
+                        <a class="btn btn-success mt-2" href="/invoice/<%= item.id %>">Wygeneruj fakture</a>
                     </div>
          
                         <% item.Przedmioty.forEach(el => { %>

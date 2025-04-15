@@ -19,6 +19,7 @@
                 </div>
                 <div style="display: flex;justify-content: center; gap:10px" class="mt-5">
                     <a href="/" class="btn btn-primary">Strona główna</a> 
+                    <a href="/invoice/<%= orderId %>" class="btn btn-success">Wygeneruj fakture</a> 
                     <% if(logged){ %>
                     <a href="/user/orders/<%= orderId %>" class="btn btn-success">Podgląd zamówienia</a>
                     <% } %>

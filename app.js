@@ -7,11 +7,12 @@ const bodyParser = require("body-parser")
 const cookieParser = require('cookie-parser');
 const products = require('./Router/products')
 const auth = require('./Router/auth')
-const user = require('./Router/user')
+const {router} = require('./Router/user')
 const cart = require('./Router/cart')
 const { con } = require('./Controller/db_connection')
 const Category = require('./Model/Category')
 const session = require('express-session')
+const invoice = require('./Router/invoice')
 
 con.connection.connect((err) => {
     if (err) {
@@ -59,8 +60,9 @@ app.use(bodyParser.json())
 app.set('views', path.join(__dirname,  'views'));
 app.use('/', products)
 app.use('/auth', auth)
-app.use('/user', user)
+app.use('/user', router)
 app.use('/cart', cart)
+app.use("/invoice", invoice)
 
 app.use((req, res, next) => {
     res.status(404).render('./404.ejs');

@@ -170,11 +170,13 @@ router.post('/finalization', (req, res) => {
 
     }else{
         const sql = `
-            INSERT INTO Adresy (Telefon, Ulica, Województwo, \`Kod pocztowy\`, Miasto, \`E-mail\`, id_uzytkownika) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Adresy (Imie, Nazwisko, Telefon, Ulica, Województwo, \`Kod pocztowy\`, Miasto, \`E-mail\`, id_uzytkownika) 
+            VALUES (?,?,?, ?, ?, ?, ?, ?, ?)
         `;
 
         const values = [
+            form_data.Imie,
+            form_data.Nazwisko,
             parseInt(form_data.Telefon),
             form_data.Ulica,
             form_data.Województwo,

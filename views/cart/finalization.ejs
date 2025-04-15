@@ -44,7 +44,7 @@
           <% if(price > 200){ %>
           <span class="heading-text">Kwota do zapłaty: <%= (price - (20 / 100) * price).toFixed(2)  %>zł</span>
           <%}else{ %>
-            <span class="heading-text">Kwota do zapłaty: price zł</span>
+            <span class="heading-text">Kwota do zapłaty: <%= price %>zł</span>
             <%}%>
          
         </div>
